@@ -1,0 +1,522 @@
+
+------------------------------------------------------------
+All tasks runnable from root project
+------------------------------------------------------------
+
+Android tasks
+-------------
+app:androidDependencies - Displays the Android dependencies of the project.
+app:signingReport - Displays the signing info for each variant.
+app:sourceSets - Prints out all the source sets defined in this project.
+
+Build tasks
+-----------
+app:assemble - Assembles all variants of all applications and secondary packages. [app:assembleDebug, app:assembleRelease]
+app:assembleAndroidTest - Assembles all the Test applications. [app:compileDebugAndroidTestSources]
+    app:assembleDebugAndroidTest
+    app:compileDebugAndroidTestShaders
+    app:generateDebugAndroidTestAssets
+    app:mergeDebugAndroidTestAssets
+    app:mergeDebugAndroidTestJniLibFolders
+    app:mergeDebugAndroidTestShaders
+    app:packageDebugAndroidTest
+    app:processDebugAndroidTestJavaRes
+    app:transformClassesWithDexForDebugAndroidTest
+    app:transformNative_libsWithMergeJniLibsForDebugAndroidTest
+    app:transformResourcesWithMergeJavaResForDebugAndroidTest
+    app:validateSigningDebugAndroidTest
+app:assembleDebug - Assembles all Debug builds. [app:compileDebugSources]
+    app:compileDebugShaders
+    app:generateDebugAssets
+    app:mergeDebugAssets
+    app:mergeDebugJniLibFolders
+    app:mergeDebugShaders
+    app:packageDebug
+    app:processDebugJavaRes
+    app:transformClassesWithDexForDebug
+    app:transformNative_libsWithMergeJniLibsForDebug
+    app:transformResourcesWithMergeJavaResForDebug
+    app:validateSigningDebug
+app:assembleRelease - Assembles all Release builds. [app:compileReleaseSources]
+    app:compileReleaseShaders
+    app:generateReleaseAssets
+    app:lintVitalRelease - Runs lint on just the fatal issues in the release build.
+    app:mergeReleaseAssets
+    app:mergeReleaseJniLibFolders
+    app:mergeReleaseShaders
+    app:packageRelease
+    app:processReleaseJavaRes
+    app:transformClassesWithDexForRelease
+    app:transformNative_libsWithMergeJniLibsForRelease
+    app:transformResourcesWithMergeJavaResForRelease
+app:build - Assembles and tests this project. [app:assemble, app:check]
+app:buildDependents - Assembles and tests this project and all projects that depend on it. [app:build]
+app:buildNeeded - Assembles and tests this project and all projects it depends on. [app:build]
+app:clean - Deletes the build directory.
+app:compileDebugAndroidTestSources
+    app:checkDebugManifest
+    app:compileDebugAidl
+    app:compileDebugAndroidTestAidl
+    app:compileDebugAndroidTestJavaWithJavac
+    app:compileDebugAndroidTestNdk
+    app:compileDebugAndroidTestRenderscript
+    app:compileDebugJavaWithJavac
+    app:compileDebugRenderscript
+    app:generateDebugAndroidTestBuildConfig
+    app:generateDebugAndroidTestResValues
+    app:generateDebugAndroidTestResources
+    app:generateDebugAndroidTestSources
+    app:generateDebugBuildConfig
+    app:generateDebugResValues
+    app:generateDebugResources
+    app:generateDebugSources
+    app:incrementalDebugAndroidTestJavaCompilationSafeguard
+    app:incrementalDebugJavaCompilationSafeguard
+    app:mergeDebugAndroidTestResources
+    app:mergeDebugResources
+    app:preBuild
+    app:preDebugAndroidTestBuild
+    app:preDebugBuild
+    app:preReleaseBuild
+    app:prepareComAndroidSupportAnimatedVectorDrawable2421Library - Prepare com.android.support:animated-vector-drawable:24.2.1
+    app:prepareComAndroidSupportAppcompatV72421Library - Prepare com.android.support:appcompat-v7:24.2.1
+    app:prepareComAndroidSupportDesign2421Library - Prepare com.android.support:design:24.2.1
+    app:prepareComAndroidSupportPaletteV72421Library - Prepare com.android.support:palette-v7:24.2.1
+    app:prepareComAndroidSupportPercent2421Library - Prepare com.android.support:percent:24.2.1
+    app:prepareComAndroidSupportRecyclerviewV72421Library - Prepare com.android.support:recyclerview-v7:24.2.1
+    app:prepareComAndroidSupportSupportCompat2421Library - Prepare com.android.support:support-compat:24.2.1
+    app:prepareComAndroidSupportSupportCoreUi2421Library - Prepare com.android.support:support-core-ui:24.2.1
+    app:prepareComAndroidSupportSupportCoreUtils2421Library - Prepare com.android.support:support-core-utils:24.2.1
+    app:prepareComAndroidSupportSupportFragment2421Library - Prepare com.android.support:support-fragment:24.2.1
+    app:prepareComAndroidSupportSupportMediaCompat2421Library - Prepare com.android.support:support-media-compat:24.2.1
+    app:prepareComAndroidSupportSupportV42421Library - Prepare com.android.support:support-v4:24.2.1
+    app:prepareComAndroidSupportSupportVectorDrawable2421Library - Prepare com.android.support:support-vector-drawable:24.2.1
+    app:prepareComAndroidSupportTestEspressoEspressoContrib222Library - Prepare com.android.support.test.espresso:espresso-contrib:2.2.2
+    app:prepareComAndroidSupportTestEspressoEspressoCore222Library - Prepare com.android.support.test.espresso:espresso-core:2.2.2
+    app:prepareComAndroidSupportTestEspressoEspressoIdlingResource222Library - Prepare com.android.support.test.espresso:espresso-idling-resource:2.2.2
+    app:prepareComAndroidSupportTestExposedInstrumentationApiPublish05Library - Prepare com.android.support.test:exposed-instrumentation-api-publish:0.5
+    app:prepareComAndroidSupportTestRules05Library - Prepare com.android.support.test:rules:0.5
+    app:prepareComAndroidSupportTestRunner05Library - Prepare com.android.support.test:runner:0.5
+    app:prepareDebugAndroidTestDependencies
+    app:prepareDebugDependencies
+    app:prepareNetSteamcraftedMaterialiconlib103Library - Prepare net.steamcrafted:materialiconlib:1.0.3
+    app:processDebugAndroidTestManifest
+    app:processDebugAndroidTestResources
+    app:processDebugManifest
+    app:processDebugResources
+app:compileDebugSources
+    app:checkDebugManifest
+    app:compileDebugAidl
+    app:compileDebugJavaWithJavac
+    app:compileDebugNdk
+    app:compileDebugRenderscript
+    app:generateDebugBuildConfig
+    app:generateDebugResValues
+    app:generateDebugResources
+    app:generateDebugSources
+    app:incrementalDebugJavaCompilationSafeguard
+    app:mergeDebugResources
+    app:preBuild
+    app:preDebugAndroidTestBuild
+    app:preDebugBuild
+    app:preReleaseBuild
+    app:prepareComAndroidSupportAnimatedVectorDrawable2421Library - Prepare com.android.support:animated-vector-drawable:24.2.1
+    app:prepareComAndroidSupportAppcompatV72421Library - Prepare com.android.support:appcompat-v7:24.2.1
+    app:prepareComAndroidSupportDesign2421Library - Prepare com.android.support:design:24.2.1
+    app:prepareComAndroidSupportPaletteV72421Library - Prepare com.android.support:palette-v7:24.2.1
+    app:prepareComAndroidSupportPercent2421Library - Prepare com.android.support:percent:24.2.1
+    app:prepareComAndroidSupportRecyclerviewV72421Library - Prepare com.android.support:recyclerview-v7:24.2.1
+    app:prepareComAndroidSupportSupportCompat2421Library - Prepare com.android.support:support-compat:24.2.1
+    app:prepareComAndroidSupportSupportCoreUi2421Library - Prepare com.android.support:support-core-ui:24.2.1
+    app:prepareComAndroidSupportSupportCoreUtils2421Library - Prepare com.android.support:support-core-utils:24.2.1
+    app:prepareComAndroidSupportSupportFragment2421Library - Prepare com.android.support:support-fragment:24.2.1
+    app:prepareComAndroidSupportSupportMediaCompat2421Library - Prepare com.android.support:support-media-compat:24.2.1
+    app:prepareComAndroidSupportSupportV42421Library - Prepare com.android.support:support-v4:24.2.1
+    app:prepareComAndroidSupportSupportVectorDrawable2421Library - Prepare com.android.support:support-vector-drawable:24.2.1
+    app:prepareComAndroidSupportTestEspressoEspressoIdlingResource222Library - Prepare com.android.support.test.espresso:espresso-idling-resource:2.2.2
+    app:prepareDebugDependencies
+    app:prepareNetSteamcraftedMaterialiconlib103Library - Prepare net.steamcrafted:materialiconlib:1.0.3
+    app:processDebugManifest
+    app:processDebugResources
+app:compileDebugUnitTestSources
+    app:checkDebugManifest
+    app:compileDebugAidl
+    app:compileDebugJavaWithJavac
+    app:compileDebugRenderscript
+    app:compileDebugUnitTestJavaWithJavac
+    app:generateDebugBuildConfig
+    app:generateDebugResValues
+    app:generateDebugResources
+    app:generateDebugSources
+    app:incrementalDebugJavaCompilationSafeguard
+    app:incrementalDebugUnitTestJavaCompilationSafeguard
+    app:mergeDebugResources
+    app:preBuild
+    app:preDebugAndroidTestBuild
+    app:preDebugBuild
+    app:preDebugUnitTestBuild
+    app:preReleaseBuild
+    app:prepareComAndroidSupportAnimatedVectorDrawable2421Library - Prepare com.android.support:animated-vector-drawable:24.2.1
+    app:prepareComAndroidSupportAppcompatV72421Library - Prepare com.android.support:appcompat-v7:24.2.1
+    app:prepareComAndroidSupportDesign2421Library - Prepare com.android.support:design:24.2.1
+    app:prepareComAndroidSupportPaletteV72421Library - Prepare com.android.support:palette-v7:24.2.1
+    app:prepareComAndroidSupportPercent2421Library - Prepare com.android.support:percent:24.2.1
+    app:prepareComAndroidSupportRecyclerviewV72421Library - Prepare com.android.support:recyclerview-v7:24.2.1
+    app:prepareComAndroidSupportSupportCompat2421Library - Prepare com.android.support:support-compat:24.2.1
+    app:prepareComAndroidSupportSupportCoreUi2421Library - Prepare com.android.support:support-core-ui:24.2.1
+    app:prepareComAndroidSupportSupportCoreUtils2421Library - Prepare com.android.support:support-core-utils:24.2.1
+    app:prepareComAndroidSupportSupportFragment2421Library - Prepare com.android.support:support-fragment:24.2.1
+    app:prepareComAndroidSupportSupportMediaCompat2421Library - Prepare com.android.support:support-media-compat:24.2.1
+    app:prepareComAndroidSupportSupportV42421Library - Prepare com.android.support:support-v4:24.2.1
+    app:prepareComAndroidSupportSupportVectorDrawable2421Library - Prepare com.android.support:support-vector-drawable:24.2.1
+    app:prepareComAndroidSupportTestEspressoEspressoIdlingResource222Library - Prepare com.android.support.test.espresso:espresso-idling-resource:2.2.2
+    app:prepareDebugDependencies
+    app:prepareDebugUnitTestDependencies
+    app:prepareNetSteamcraftedMaterialiconlib103Library - Prepare net.steamcrafted:materialiconlib:1.0.3
+    app:processDebugJavaRes
+    app:processDebugManifest
+    app:processDebugResources
+    app:processDebugUnitTestJavaRes
+app:compileReleaseSources
+    app:checkReleaseManifest
+    app:compileReleaseAidl
+    app:compileReleaseJavaWithJavac
+    app:compileReleaseNdk
+    app:compileReleaseRenderscript
+    app:generateReleaseBuildConfig
+    app:generateReleaseResValues
+    app:generateReleaseResources
+    app:generateReleaseSources
+    app:incrementalReleaseJavaCompilationSafeguard
+    app:mergeReleaseResources
+    app:preBuild
+    app:preDebugAndroidTestBuild
+    app:preDebugBuild
+    app:preReleaseBuild
+    app:prepareComAndroidSupportAnimatedVectorDrawable2421Library - Prepare com.android.support:animated-vector-drawable:24.2.1
+    app:prepareComAndroidSupportAppcompatV72421Library - Prepare com.android.support:appcompat-v7:24.2.1
+    app:prepareComAndroidSupportDesign2421Library - Prepare com.android.support:design:24.2.1
+    app:prepareComAndroidSupportPaletteV72421Library - Prepare com.android.support:palette-v7:24.2.1
+    app:prepareComAndroidSupportPercent2421Library - Prepare com.android.support:percent:24.2.1
+    app:prepareComAndroidSupportRecyclerviewV72421Library - Prepare com.android.support:recyclerview-v7:24.2.1
+    app:prepareComAndroidSupportSupportCompat2421Library - Prepare com.android.support:support-compat:24.2.1
+    app:prepareComAndroidSupportSupportCoreUi2421Library - Prepare com.android.support:support-core-ui:24.2.1
+    app:prepareComAndroidSupportSupportCoreUtils2421Library - Prepare com.android.support:support-core-utils:24.2.1
+    app:prepareComAndroidSupportSupportFragment2421Library - Prepare com.android.support:support-fragment:24.2.1
+    app:prepareComAndroidSupportSupportMediaCompat2421Library - Prepare com.android.support:support-media-compat:24.2.1
+    app:prepareComAndroidSupportSupportV42421Library - Prepare com.android.support:support-v4:24.2.1
+    app:prepareComAndroidSupportSupportVectorDrawable2421Library - Prepare com.android.support:support-vector-drawable:24.2.1
+    app:prepareComAndroidSupportTestEspressoEspressoIdlingResource222Library - Prepare com.android.support.test.espresso:espresso-idling-resource:2.2.2
+    app:prepareNetSteamcraftedMaterialiconlib103Library - Prepare net.steamcrafted:materialiconlib:1.0.3
+    app:prepareReleaseDependencies
+    app:processReleaseManifest
+    app:processReleaseResources
+app:compileReleaseUnitTestSources
+    app:checkReleaseManifest
+    app:compileReleaseAidl
+    app:compileReleaseJavaWithJavac
+    app:compileReleaseRenderscript
+    app:compileReleaseUnitTestJavaWithJavac
+    app:generateReleaseBuildConfig
+    app:generateReleaseResValues
+    app:generateReleaseResources
+    app:generateReleaseSources
+    app:incrementalReleaseJavaCompilationSafeguard
+    app:incrementalReleaseUnitTestJavaCompilationSafeguard
+    app:mergeReleaseResources
+    app:preBuild
+    app:preDebugAndroidTestBuild
+    app:preDebugBuild
+    app:preReleaseBuild
+    app:preReleaseUnitTestBuild
+    app:prepareComAndroidSupportAnimatedVectorDrawable2421Library - Prepare com.android.support:animated-vector-drawable:24.2.1
+    app:prepareComAndroidSupportAppcompatV72421Library - Prepare com.android.support:appcompat-v7:24.2.1
+    app:prepareComAndroidSupportDesign2421Library - Prepare com.android.support:design:24.2.1
+    app:prepareComAndroidSupportPaletteV72421Library - Prepare com.android.support:palette-v7:24.2.1
+    app:prepareComAndroidSupportPercent2421Library - Prepare com.android.support:percent:24.2.1
+    app:prepareComAndroidSupportRecyclerviewV72421Library - Prepare com.android.support:recyclerview-v7:24.2.1
+    app:prepareComAndroidSupportSupportCompat2421Library - Prepare com.android.support:support-compat:24.2.1
+    app:prepareComAndroidSupportSupportCoreUi2421Library - Prepare com.android.support:support-core-ui:24.2.1
+    app:prepareComAndroidSupportSupportCoreUtils2421Library - Prepare com.android.support:support-core-utils:24.2.1
+    app:prepareComAndroidSupportSupportFragment2421Library - Prepare com.android.support:support-fragment:24.2.1
+    app:prepareComAndroidSupportSupportMediaCompat2421Library - Prepare com.android.support:support-media-compat:24.2.1
+    app:prepareComAndroidSupportSupportV42421Library - Prepare com.android.support:support-v4:24.2.1
+    app:prepareComAndroidSupportSupportVectorDrawable2421Library - Prepare com.android.support:support-vector-drawable:24.2.1
+    app:prepareComAndroidSupportTestEspressoEspressoIdlingResource222Library - Prepare com.android.support.test.espresso:espresso-idling-resource:2.2.2
+    app:prepareNetSteamcraftedMaterialiconlib103Library - Prepare net.steamcrafted:materialiconlib:1.0.3
+    app:prepareReleaseDependencies
+    app:prepareReleaseUnitTestDependencies
+    app:processReleaseJavaRes
+    app:processReleaseManifest
+    app:processReleaseResources
+    app:processReleaseUnitTestJavaRes
+app:mockableAndroidJar - Creates a version of android.jar that's suitable for unit tests.
+
+Build Setup tasks
+-----------------
+init - Initializes a new Gradle build. [incubating]
+wrapper - Generates Gradle wrapper files. [incubating]
+
+Help tasks
+----------
+buildEnvironment - Displays all buildscript dependencies declared in root project 'Timer'.
+app:buildEnvironment - Displays all buildscript dependencies declared in project ':app'.
+components - Displays the components produced by root project 'Timer'. [incubating]
+app:components - Displays the components produced by project ':app'. [incubating]
+dependencies - Displays all dependencies declared in root project 'Timer'.
+app:dependencies - Displays all dependencies declared in project ':app'.
+dependencyInsight - Displays the insight into a specific dependency in root project 'Timer'.
+app:dependencyInsight - Displays the insight into a specific dependency in project ':app'.
+help - Displays a help message.
+app:help - Displays a help message.
+model - Displays the configuration model of root project 'Timer'. [incubating]
+app:model - Displays the configuration model of project ':app'. [incubating]
+projects - Displays the sub-projects of root project 'Timer'.
+app:projects - Displays the sub-projects of project ':app'.
+properties - Displays the properties of root project 'Timer'.
+app:properties - Displays the properties of project ':app'.
+tasks - Displays the tasks runnable from root project 'Timer' (some of the displayed tasks may belong to subprojects).
+app:tasks - Displays the tasks runnable from project ':app'.
+
+Install tasks
+-------------
+app:installDebug - Installs the Debug build. [app:assembleDebug]
+app:installDebugAndroidTest - Installs the android (on device) tests for the Debug build. [app:compileDebugAndroidTestSources]
+    app:assembleDebugAndroidTest
+    app:compileDebugAndroidTestShaders
+    app:generateDebugAndroidTestAssets
+    app:mergeDebugAndroidTestAssets
+    app:mergeDebugAndroidTestJniLibFolders
+    app:mergeDebugAndroidTestShaders
+    app:packageDebugAndroidTest
+    app:processDebugAndroidTestJavaRes
+    app:transformClassesWithDexForDebugAndroidTest
+    app:transformNative_libsWithMergeJniLibsForDebugAndroidTest
+    app:transformResourcesWithMergeJavaResForDebugAndroidTest
+    app:validateSigningDebugAndroidTest
+app:uninstallAll - Uninstall all applications. [app:uninstallDebug, app:uninstallDebugAndroidTest, app:uninstallRelease]
+app:uninstallDebug - Uninstalls the Debug build.
+app:uninstallDebugAndroidTest - Uninstalls the android (on device) tests for the Debug build.
+app:uninstallRelease - Uninstalls the Release build.
+
+Verification tasks
+------------------
+app:check - Runs all checks. [app:lint, app:test]
+app:connectedAndroidTest - Installs and runs instrumentation tests for all flavors on connected devices. [app:connectedDebugAndroidTest]
+app:connectedCheck - Runs all device checks on currently connected devices. [app:connectedAndroidTest]
+app:connectedDebugAndroidTest - Installs and runs the tests for debug on connected devices. [app:assembleDebug, app:compileDebugAndroidTestSources]
+    app:assembleDebugAndroidTest
+    app:compileDebugAndroidTestShaders
+    app:generateDebugAndroidTestAssets
+    app:mergeDebugAndroidTestAssets
+    app:mergeDebugAndroidTestJniLibFolders
+    app:mergeDebugAndroidTestShaders
+    app:packageDebugAndroidTest
+    app:processDebugAndroidTestJavaRes
+    app:transformClassesWithDexForDebugAndroidTest
+    app:transformNative_libsWithMergeJniLibsForDebugAndroidTest
+    app:transformResourcesWithMergeJavaResForDebugAndroidTest
+    app:validateSigningDebugAndroidTest
+app:deviceAndroidTest - Installs and runs instrumentation tests using all Device Providers.
+app:deviceCheck - Runs all device checks using Device Providers and Test Servers. [app:deviceAndroidTest]
+app:lint - Runs lint on all variants.
+    app:checkDebugManifest
+    app:checkReleaseManifest
+    app:compileDebugAidl
+    app:compileDebugJavaWithJavac
+    app:compileDebugRenderscript
+    app:compileReleaseAidl
+    app:compileReleaseJavaWithJavac
+    app:compileReleaseRenderscript
+    app:generateDebugBuildConfig
+    app:generateDebugResValues
+    app:generateDebugResources
+    app:generateDebugSources
+    app:generateReleaseBuildConfig
+    app:generateReleaseResValues
+    app:generateReleaseResources
+    app:generateReleaseSources
+    app:incrementalDebugJavaCompilationSafeguard
+    app:incrementalReleaseJavaCompilationSafeguard
+    app:mergeDebugResources
+    app:mergeReleaseResources
+    app:preBuild
+    app:preDebugAndroidTestBuild
+    app:preDebugBuild
+    app:preReleaseBuild
+    app:prepareComAndroidSupportAnimatedVectorDrawable2421Library - Prepare com.android.support:animated-vector-drawable:24.2.1
+    app:prepareComAndroidSupportAppcompatV72421Library - Prepare com.android.support:appcompat-v7:24.2.1
+    app:prepareComAndroidSupportDesign2421Library - Prepare com.android.support:design:24.2.1
+    app:prepareComAndroidSupportPaletteV72421Library - Prepare com.android.support:palette-v7:24.2.1
+    app:prepareComAndroidSupportPercent2421Library - Prepare com.android.support:percent:24.2.1
+    app:prepareComAndroidSupportRecyclerviewV72421Library - Prepare com.android.support:recyclerview-v7:24.2.1
+    app:prepareComAndroidSupportSupportCompat2421Library - Prepare com.android.support:support-compat:24.2.1
+    app:prepareComAndroidSupportSupportCoreUi2421Library - Prepare com.android.support:support-core-ui:24.2.1
+    app:prepareComAndroidSupportSupportCoreUtils2421Library - Prepare com.android.support:support-core-utils:24.2.1
+    app:prepareComAndroidSupportSupportFragment2421Library - Prepare com.android.support:support-fragment:24.2.1
+    app:prepareComAndroidSupportSupportMediaCompat2421Library - Prepare com.android.support:support-media-compat:24.2.1
+    app:prepareComAndroidSupportSupportV42421Library - Prepare com.android.support:support-v4:24.2.1
+    app:prepareComAndroidSupportSupportVectorDrawable2421Library - Prepare com.android.support:support-vector-drawable:24.2.1
+    app:prepareComAndroidSupportTestEspressoEspressoIdlingResource222Library - Prepare com.android.support.test.espresso:espresso-idling-resource:2.2.2
+    app:prepareDebugDependencies
+    app:prepareNetSteamcraftedMaterialiconlib103Library - Prepare net.steamcrafted:materialiconlib:1.0.3
+    app:prepareReleaseDependencies
+    app:processDebugManifest
+    app:processDebugResources
+    app:processReleaseManifest
+    app:processReleaseResources
+app:lintDebug - Runs lint on the Debug build.
+    app:checkDebugManifest
+    app:compileDebugAidl
+    app:compileDebugJavaWithJavac
+    app:compileDebugRenderscript
+    app:compileLint
+    app:generateDebugBuildConfig
+    app:generateDebugResValues
+    app:generateDebugResources
+    app:generateDebugSources
+    app:incrementalDebugJavaCompilationSafeguard
+    app:mergeDebugResources
+    app:preBuild
+    app:preDebugAndroidTestBuild
+    app:preDebugBuild
+    app:preReleaseBuild
+    app:prepareComAndroidSupportAnimatedVectorDrawable2421Library - Prepare com.android.support:animated-vector-drawable:24.2.1
+    app:prepareComAndroidSupportAppcompatV72421Library - Prepare com.android.support:appcompat-v7:24.2.1
+    app:prepareComAndroidSupportDesign2421Library - Prepare com.android.support:design:24.2.1
+    app:prepareComAndroidSupportPaletteV72421Library - Prepare com.android.support:palette-v7:24.2.1
+    app:prepareComAndroidSupportPercent2421Library - Prepare com.android.support:percent:24.2.1
+    app:prepareComAndroidSupportRecyclerviewV72421Library - Prepare com.android.support:recyclerview-v7:24.2.1
+    app:prepareComAndroidSupportSupportCompat2421Library - Prepare com.android.support:support-compat:24.2.1
+    app:prepareComAndroidSupportSupportCoreUi2421Library - Prepare com.android.support:support-core-ui:24.2.1
+    app:prepareComAndroidSupportSupportCoreUtils2421Library - Prepare com.android.support:support-core-utils:24.2.1
+    app:prepareComAndroidSupportSupportFragment2421Library - Prepare com.android.support:support-fragment:24.2.1
+    app:prepareComAndroidSupportSupportMediaCompat2421Library - Prepare com.android.support:support-media-compat:24.2.1
+    app:prepareComAndroidSupportSupportV42421Library - Prepare com.android.support:support-v4:24.2.1
+    app:prepareComAndroidSupportSupportVectorDrawable2421Library - Prepare com.android.support:support-vector-drawable:24.2.1
+    app:prepareComAndroidSupportTestEspressoEspressoIdlingResource222Library - Prepare com.android.support.test.espresso:espresso-idling-resource:2.2.2
+    app:prepareDebugDependencies
+    app:prepareNetSteamcraftedMaterialiconlib103Library - Prepare net.steamcrafted:materialiconlib:1.0.3
+    app:processDebugManifest
+    app:processDebugResources
+app:lintRelease - Runs lint on the Release build.
+    app:checkReleaseManifest
+    app:compileLint
+    app:compileReleaseAidl
+    app:compileReleaseJavaWithJavac
+    app:compileReleaseRenderscript
+    app:generateReleaseBuildConfig
+    app:generateReleaseResValues
+    app:generateReleaseResources
+    app:generateReleaseSources
+    app:incrementalReleaseJavaCompilationSafeguard
+    app:mergeReleaseResources
+    app:preBuild
+    app:preDebugAndroidTestBuild
+    app:preDebugBuild
+    app:preReleaseBuild
+    app:prepareComAndroidSupportAnimatedVectorDrawable2421Library - Prepare com.android.support:animated-vector-drawable:24.2.1
+    app:prepareComAndroidSupportAppcompatV72421Library - Prepare com.android.support:appcompat-v7:24.2.1
+    app:prepareComAndroidSupportDesign2421Library - Prepare com.android.support:design:24.2.1
+    app:prepareComAndroidSupportPaletteV72421Library - Prepare com.android.support:palette-v7:24.2.1
+    app:prepareComAndroidSupportPercent2421Library - Prepare com.android.support:percent:24.2.1
+    app:prepareComAndroidSupportRecyclerviewV72421Library - Prepare com.android.support:recyclerview-v7:24.2.1
+    app:prepareComAndroidSupportSupportCompat2421Library - Prepare com.android.support:support-compat:24.2.1
+    app:prepareComAndroidSupportSupportCoreUi2421Library - Prepare com.android.support:support-core-ui:24.2.1
+    app:prepareComAndroidSupportSupportCoreUtils2421Library - Prepare com.android.support:support-core-utils:24.2.1
+    app:prepareComAndroidSupportSupportFragment2421Library - Prepare com.android.support:support-fragment:24.2.1
+    app:prepareComAndroidSupportSupportMediaCompat2421Library - Prepare com.android.support:support-media-compat:24.2.1
+    app:prepareComAndroidSupportSupportV42421Library - Prepare com.android.support:support-v4:24.2.1
+    app:prepareComAndroidSupportSupportVectorDrawable2421Library - Prepare com.android.support:support-vector-drawable:24.2.1
+    app:prepareComAndroidSupportTestEspressoEspressoIdlingResource222Library - Prepare com.android.support.test.espresso:espresso-idling-resource:2.2.2
+    app:prepareNetSteamcraftedMaterialiconlib103Library - Prepare net.steamcrafted:materialiconlib:1.0.3
+    app:prepareReleaseDependencies
+    app:processReleaseManifest
+    app:processReleaseResources
+app:test - Run unit tests for all variants. [app:testDebugUnitTest, app:testReleaseUnitTest]
+app:testDebugUnitTest - Run unit tests for the debug build. [app:compileDebugUnitTestSources, app:mockableAndroidJar]
+    app:assembleDebugUnitTest
+app:testReleaseUnitTest - Run unit tests for the release build. [app:compileReleaseUnitTestSources, app:mockableAndroidJar]
+    app:assembleReleaseUnitTest
+
+Other tasks
+-----------
+clean
+app:extractProguardFiles
+    app:preBuild
+app:jarDebugClasses
+    app:checkDebugManifest
+    app:compileDebugAidl
+    app:compileDebugJavaWithJavac
+    app:compileDebugRenderscript
+    app:generateDebugBuildConfig
+    app:generateDebugResValues
+    app:generateDebugResources
+    app:generateDebugSources
+    app:incrementalDebugJavaCompilationSafeguard
+    app:mergeDebugResources
+    app:preBuild
+    app:preDebugAndroidTestBuild
+    app:preDebugBuild
+    app:preReleaseBuild
+    app:prepareComAndroidSupportAnimatedVectorDrawable2421Library - Prepare com.android.support:animated-vector-drawable:24.2.1
+    app:prepareComAndroidSupportAppcompatV72421Library - Prepare com.android.support:appcompat-v7:24.2.1
+    app:prepareComAndroidSupportDesign2421Library - Prepare com.android.support:design:24.2.1
+    app:prepareComAndroidSupportPaletteV72421Library - Prepare com.android.support:palette-v7:24.2.1
+    app:prepareComAndroidSupportPercent2421Library - Prepare com.android.support:percent:24.2.1
+    app:prepareComAndroidSupportRecyclerviewV72421Library - Prepare com.android.support:recyclerview-v7:24.2.1
+    app:prepareComAndroidSupportSupportCompat2421Library - Prepare com.android.support:support-compat:24.2.1
+    app:prepareComAndroidSupportSupportCoreUi2421Library - Prepare com.android.support:support-core-ui:24.2.1
+    app:prepareComAndroidSupportSupportCoreUtils2421Library - Prepare com.android.support:support-core-utils:24.2.1
+    app:prepareComAndroidSupportSupportFragment2421Library - Prepare com.android.support:support-fragment:24.2.1
+    app:prepareComAndroidSupportSupportMediaCompat2421Library - Prepare com.android.support:support-media-compat:24.2.1
+    app:prepareComAndroidSupportSupportV42421Library - Prepare com.android.support:support-v4:24.2.1
+    app:prepareComAndroidSupportSupportVectorDrawable2421Library - Prepare com.android.support:support-vector-drawable:24.2.1
+    app:prepareComAndroidSupportTestEspressoEspressoIdlingResource222Library - Prepare com.android.support.test.espresso:espresso-idling-resource:2.2.2
+    app:prepareDebugDependencies
+    app:prepareNetSteamcraftedMaterialiconlib103Library - Prepare net.steamcrafted:materialiconlib:1.0.3
+    app:processDebugManifest
+    app:processDebugResources
+app:jarReleaseClasses
+    app:checkReleaseManifest
+    app:compileReleaseAidl
+    app:compileReleaseJavaWithJavac
+    app:compileReleaseRenderscript
+    app:generateReleaseBuildConfig
+    app:generateReleaseResValues
+    app:generateReleaseResources
+    app:generateReleaseSources
+    app:incrementalReleaseJavaCompilationSafeguard
+    app:mergeReleaseResources
+    app:preBuild
+    app:preDebugAndroidTestBuild
+    app:preDebugBuild
+    app:preReleaseBuild
+    app:prepareComAndroidSupportAnimatedVectorDrawable2421Library - Prepare com.android.support:animated-vector-drawable:24.2.1
+    app:prepareComAndroidSupportAppcompatV72421Library - Prepare com.android.support:appcompat-v7:24.2.1
+    app:prepareComAndroidSupportDesign2421Library - Prepare com.android.support:design:24.2.1
+    app:prepareComAndroidSupportPaletteV72421Library - Prepare com.android.support:palette-v7:24.2.1
+    app:prepareComAndroidSupportPercent2421Library - Prepare com.android.support:percent:24.2.1
+    app:prepareComAndroidSupportRecyclerviewV72421Library - Prepare com.android.support:recyclerview-v7:24.2.1
+    app:prepareComAndroidSupportSupportCompat2421Library - Prepare com.android.support:support-compat:24.2.1
+    app:prepareComAndroidSupportSupportCoreUi2421Library - Prepare com.android.support:support-core-ui:24.2.1
+    app:prepareComAndroidSupportSupportCoreUtils2421Library - Prepare com.android.support:support-core-utils:24.2.1
+    app:prepareComAndroidSupportSupportFragment2421Library - Prepare com.android.support:support-fragment:24.2.1
+    app:prepareComAndroidSupportSupportMediaCompat2421Library - Prepare com.android.support:support-media-compat:24.2.1
+    app:prepareComAndroidSupportSupportV42421Library - Prepare com.android.support:support-v4:24.2.1
+    app:prepareComAndroidSupportSupportVectorDrawable2421Library - Prepare com.android.support:support-vector-drawable:24.2.1
+    app:prepareComAndroidSupportTestEspressoEspressoIdlingResource222Library - Prepare com.android.support.test.espresso:espresso-idling-resource:2.2.2
+    app:prepareNetSteamcraftedMaterialiconlib103Library - Prepare net.steamcrafted:materialiconlib:1.0.3
+    app:prepareReleaseDependencies
+    app:processReleaseManifest
+    app:processReleaseResources
+app:transformResourcesWithMergeJavaResForDebugUnitTest
+    app:preBuild
+    app:preDebugUnitTestBuild
+    app:prepareDebugUnitTestDependencies
+    app:processDebugUnitTestJavaRes
+app:transformResourcesWithMergeJavaResForReleaseUnitTest
+    app:preBuild
+    app:preReleaseUnitTestBuild
+    app:prepareReleaseUnitTestDependencies
+    app:processReleaseUnitTestJavaRes

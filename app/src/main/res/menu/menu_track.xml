@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="@string/sort"
+        android:orderInCategory="12">
+        <menu>
+            <item android:id="@+id/menu_sort_track_a2z" android:title="A~Z"/>
+            <item android:id="@+id/menu_sort_track_z2a" android:title="Z~A"/>
+            <item android:id="@+id/menu_sort_track_year" android:title="YEAR"/>
+            <item android:id="@+id/menu_sort_track_album" android:title="ALBUM"/>
+            <item android:id="@+id/menu_sort_track_artist" android:title="ARTIST"/>
+            <item android:id="@+id/menu_sort_track_duration" android:title="DURATION"/>
+        </menu>
+    </item>
+
+</menu>

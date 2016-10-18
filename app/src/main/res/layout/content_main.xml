@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.lxt.xiang.timer.view.SlidingUpPanelLayout
+    android:id="@+id/sliding_panel"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:gravity="bottom"
+    sothree:fadeColor="@android:color/transparent"
+    sothree:panelHeight="55dp"
+    sothree:shadowHeight="5dp"
+    xmlns:sothree="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <FrameLayout
+        android:id="@+id/main_frame_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/fast_frame_layout"
+        android:layout_width="match_parent"
+        android:layout_height="250dp">
+    </FrameLayout>
+
+</com.lxt.xiang.timer.view.SlidingUpPanelLayout>
+
+

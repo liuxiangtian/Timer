@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="选择播放样式">
+
+        <Preference
+            android:key="Category_key"
+            android:summary="summary"
+            android:title="title" />
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory android:title="常规配置">
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="need_transition"
+            android:summary="是否启用场景动画？"
+            android:title="Scene Transition" />
+
+        <ListPreference
+            android:defaultValue="light"
+            android:entries="@array/pref_theme_entries"
+            android:entryValues="@array/pref_theme_values"
+            android:key="which_theme"
+            android:summary="选择主题"
+            android:title="Theme" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

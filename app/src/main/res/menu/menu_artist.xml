@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="@string/sort"
+        android:orderInCategory="12">
+        <menu>
+            <item android:id="@+id/menu_sort_artist_a2z" android:title="A~Z"/>
+            <item android:id="@+id/menu_sort_artist_z2a" android:title="Z~A"/>
+            <item android:id="@+id/menu_sort_artist_album" android:title="ALBUMNUM"/>
+            <item android:id="@+id/menu_sort_track_nums" android:title="TRACKNUM"/>
+        </menu>
+    </item>
+</menu>

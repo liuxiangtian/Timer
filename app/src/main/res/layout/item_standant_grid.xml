@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.percent.PercentRelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_margin="1dp"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <com.lxt.xiang.timer.view.SquareImageView
+        android:id="@+id/album_art"
+        android:layout_width="match_parent" />
+
+    <LinearLayout
+        android:id="@+id/footer"
+        android:layout_below="@+id/album_art"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:paddingLeft="12dp"
+            android:singleLine="true"
+            android:layout_marginTop="6dp"
+            android:text=""
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:paddingLeft="12dp"
+            android:layout_marginBottom="4dp"
+            android:text=""
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+</android.support.percent.PercentRelativeLayout>
