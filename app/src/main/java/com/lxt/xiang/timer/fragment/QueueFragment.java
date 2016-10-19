@@ -17,7 +17,7 @@ import com.lxt.xiang.timer.ITimerInterface;
 import com.lxt.xiang.timer.R;
 import com.lxt.xiang.timer.activity.BaseActivity;
 import com.lxt.xiang.timer.adaptor.TrackAdaptor;
-import com.lxt.xiang.timer.listener.OnPlayStateChangeListener;
+import com.lxt.xiang.timer.listener.PlayObserver;
 import com.lxt.xiang.timer.model.Track;
 import com.lxt.xiang.timer.util.PlayUtil;
 import com.lxt.xiang.timer.view.DivideItemDecoration;
@@ -27,7 +27,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class QueueFragment extends Fragment implements OnPlayStateChangeListener, TrackAdaptor.OnItemClickListener {
+public class QueueFragment extends Fragment implements TrackAdaptor.OnItemClickListener {
 
     @Bind(R.id.recycler_view)
     RecyclerView recyclerView;
@@ -67,60 +67,59 @@ public class QueueFragment extends Fragment implements OnPlayStateChangeListener
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(trackAdaptor);
         recyclerView.addItemDecoration(new DivideItemDecoration(1));
+        PlayUtil.registerPlayObserver(getActivity(), playStateObserver);
+        updateTrackAndPosition();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        BaseActivity baseActivity = (BaseActivity) getActivity();
-        if (baseActivity == null) return;
-        baseActivity.addOnPlayStateChangeListener(this);
-        ITimerInterface iTimerService = baseActivity.iTimerService;
-        if (iTimerService == null) return;
-        try {
-            List<Track> tracks = iTimerService.getQueues();
-            if (tracks == null) return;
-            trackAdaptor.replaceData(tracks);
-            int position = iTimerService.getCurrentPosition();
-            layoutManager.scrollToPosition(position);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        BaseActivity baseActivity = (BaseActivity) getActivity();
-        if (baseActivity == null) return;
-        baseActivity.removeOnPlayStateChangeListener(this);
-    }
-
-    @Override
-    public void onMetaChange() {
-        trackAdaptor.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onMetaPlay() {
-        BaseActivity baseActivity = (BaseActivity) getActivity();
-        PlayUtil.responsePlay(baseActivity, trackAdaptor);
-    }
-
-    @Override
-    public void onMetaPause() {
-
-    }
-
-    @Override
-    public void onMetaStop() {
-
+        updateTracksAndPosition();
     }
 
     @Override
     public void onItemClick(Track item, int position, long[] ids) {
         BaseActivity baseActivity = (BaseActivity) getActivity();
         PlayUtil.playTracks(baseActivity, ids, item.getId(), position);
-        trackAdaptor.notifyItem(position,true);
+        trackAdaptor.notifyItem(position, true);
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        PlayUtil.unRegisterPlayObserver(getActivity(), playStateObserver);
+    }
+
+    private PlayObserver playStateObserver = new PlayObserver(){
+
+        @Override
+        public void onMetaPlay() {
+            updateTracksAndPosition();
+        }
+    };
+
+    public void updateTrackAndPosition(){
+        BaseActivity baseActivity = (BaseActivity) getActivity();
+        if(baseActivity==null) return;
+        ITimerInterface iTimer = baseActivity.iTimerService;
+        if (iTimer==null) return;
+        try {
+            List<Track> tracks = iTimer.getQueues();
+            trackAdaptor.replaceData(tracks);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateTracksAndPosition(){
+        BaseActivity baseActivity = (BaseActivity) getActivity();
+        try {
+            Track track = baseActivity.iTimerService.getCurrentTrack();
+            int position = trackAdaptor.refreshTrack(track);
+            layoutManager.scrollToPosition(position);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

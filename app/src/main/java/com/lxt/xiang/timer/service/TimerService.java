@@ -14,6 +14,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 
 import com.lxt.xiang.timer.ITimerInterface;
+import com.lxt.xiang.timer.listener.PlayObserver;
 import com.lxt.xiang.timer.loader.TrackLoader;
 import com.lxt.xiang.timer.model.Track;
 import com.lxt.xiang.timer.provider.LastPlayStore;
@@ -23,6 +24,7 @@ import com.lxt.xiang.timer.util.PrefsUtil;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TimerService extends Service {
@@ -32,30 +34,35 @@ public class TimerService extends Service {
 
     private TimerStub mTimerStub;
     private MediaPlayer mediaPlayer;
+    private boolean isFirstCompletion = true;
 
     private AudioManager audioManager;
     private LastPlayStore lastPlayStore;
+    private List<PlayObserver> playObservers;
 
     private MediaPlayer.OnCompletionListener onCompletionListener = new MediaPlayer.OnCompletionListener() {
         @Override
         public void onCompletion(MediaPlayer mp) {
-            Log.i("main", "onCompletion: " + mp.toString());
-            mp.reset();
-            next();
+            if(!isFirstCompletion){
+                mp.reset();
+                next();
+            }
         }
     };
+
     private MediaPlayer.OnErrorListener onErrorListener = new MediaPlayer.OnErrorListener() {
         @Override
         public boolean onError(MediaPlayer mp, int what, int extra) {
             return false;
         }
     };
+
     private MediaPlayer.OnSeekCompleteListener onSeekCompleteListener = new MediaPlayer.OnSeekCompleteListener() {
         @Override
         public void onSeekComplete(MediaPlayer mp) {
-            Log.i("main", "onSeekComplete: " + mp.toString());
         }
     };
+
     private AudioManager.OnAudioFocusChangeListener onFocusListener = new AudioManager.OnAudioFocusChangeListener() {
         @Override
         public void onAudioFocusChange(int focusChange) {
@@ -72,11 +79,12 @@ public class TimerService extends Service {
             }
         }
     };
+
     private MediaPlayer.OnPreparedListener onPreparedListener = new MediaPlayer.OnPreparedListener() {
         @Override
         public void onPrepared(MediaPlayer mp) {
-            Log.i("main", "onPrepared: " + mp.toString());
             start();
+            isFirstCompletion = false;
         }
     };
 
@@ -85,12 +93,14 @@ public class TimerService extends Service {
         super.onCreate();
         mTimerStub = new TimerStub(this);
         mediaPlayer = new MediaPlayer();
+        isFirstCompletion = true;
         lastPlayStore = LastPlayStore.getInstance(this);
         mediaPlayer.setOnCompletionListener(onCompletionListener);
         mediaPlayer.setOnPreparedListener(onPreparedListener);
         mediaPlayer.setOnErrorListener(onErrorListener);
         mediaPlayer.setOnSeekCompleteListener(onSeekCompleteListener);
         audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+        playObservers = new ArrayList<>();
     }
 
     @Override
@@ -131,6 +141,7 @@ public class TimerService extends Service {
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
         }
+        notifyMetaPlay();
     }
 
     private void prev() {
@@ -164,9 +175,15 @@ public class TimerService extends Service {
         int result = audioManager.requestAudioFocus(onFocusListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
         if (result == AudioManager.AUDIOFOCUS_REQUEST_FAILED) return;
         if (!mediaPlayer.isPlaying()) {
-            long duration = mediaPlayer.getDuration();
-            mediaPlayer.seekTo((int) (duration * 0.9));
             mediaPlayer.start();
+            notifyMetaPlay();
+        }
+    }
+
+    private void notifyMetaPlay() {
+        Log.i("main", "notifyMetaPlay: ");
+        for (PlayObserver playObserver : playObservers) {
+            playObserver.onMetaPlay();
         }
     }
 
@@ -182,7 +199,7 @@ public class TimerService extends Service {
         if (ids == null) return;
         mQueues.clear();
         for (int i = 0; i < ids.length; i++) {
-            Track track = TrackLoader.loadTrack(this, ids[i]);
+            Track track = TrackLoader.getTrack(this, ids[i]);
             if (track != null) {
                 mQueues.add(track);
             }
@@ -195,10 +212,7 @@ public class TimerService extends Service {
         lastPlayStore.insertOrUpdateItem(this, id);
         Uri uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id);
         try {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
-                mediaPlayer.reset();
-            }
+            mediaPlayer.reset();
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mediaPlayer.setWakeMode(this, PowerManager.PARTIAL_WAKE_LOCK);
             mediaPlayer.setDataSource(this, uri);
@@ -350,7 +364,28 @@ public class TimerService extends Service {
             if (timerService == null) return;
             timerService.seek(position);
         }
+
+        @Override
+        public void registerPlayObserver(PlayObserver playObserver) throws RemoteException {
+            TimerService timerService = weakReference.get();
+            if (timerService == null) return;
+            timerService.registerPlayObserver(playObserver);
+        }
+
+        @Override
+        public void unRegisterPlayObserver(PlayObserver playObserver) throws RemoteException {
+            TimerService timerService = weakReference.get();
+            if (timerService == null) return;
+            timerService.unRegisterPlayObserver(playObserver);
+        }
     }
 
+    private void unRegisterPlayObserver(PlayObserver playObserver) {
+        playObservers.remove(playObserver);
+    }
+
+    private void registerPlayObserver(PlayObserver playObserver) {
+        playObservers.add(playObserver);
+    }
 
 }

@@ -1,10 +1,8 @@
 package com.lxt.xiang.timer.fragment;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.GridLayoutManager;
@@ -23,6 +21,7 @@ import com.lxt.xiang.timer.loader.ArtistLoader;
 import com.lxt.xiang.timer.model.Artist;
 import com.lxt.xiang.timer.util.ConstantsUtil;
 import com.lxt.xiang.timer.util.LoadUtil;
+import com.lxt.xiang.timer.util.NavUtil;
 import com.lxt.xiang.timer.util.PrefsUtil;
 
 import butterknife.Bind;
@@ -61,11 +60,6 @@ public class ArtistFragment extends Fragment implements ArtistAdaptor.OnItemClic
         artistAdaptor = new ArtistAdaptor(null);
         recyclerView.setAdapter(artistAdaptor);
         artistAdaptor.setOnItemClickListener(this);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
         LoadUtil.loadArtists(getContext(), artistSort, artistAdaptor);
     }
 
@@ -113,11 +107,8 @@ public class ArtistFragment extends Fragment implements ArtistAdaptor.OnItemClic
         Intent intent = new Intent(getActivity(), DetailsActivity.class);
         intent.putExtra(ConstantsUtil.DETAIL_TYPE, ConstantsUtil.DETAIL_TYPE_ARTIST);
         intent.putExtra(ConstantsUtil.DETAIL_ARTIST_ID, item.getId());
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP){
-            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), pair);
-            startActivity(intent, options.toBundle());
-        } else {
-            startActivity(intent);
-        }
+        intent.putExtra(ConstantsUtil.DETAIL_ARTIST_NAME, item.getArtist());
+        NavUtil.navToDetailsActivity(getActivity(), pair, intent);
     }
+
 }

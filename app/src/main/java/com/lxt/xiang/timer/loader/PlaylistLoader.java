@@ -18,106 +18,110 @@ public class PlaylistLoader {
 
     private static final String[] PROJECTION = new String[]{
             MediaStore.Audio.Playlists._ID,
-            MediaStore.Audio.Playlists.NAME
-    };
+            MediaStore.Audio.Playlists.NAME };
 
-    public static Playlist LAST_ADD = new Playlist(-1, "LAST ADD", 0);
-    public static Playlist LAST_PLAY = new Playlist(-2, "LAST_PLAY", 0);
-    public static Playlist TOP_TRACK = new Playlist(-3, "TOP_TRACK", 0);
+    public static Playlist LAST_ADD = new Playlist(-1, "Last Add Tracks", 0);
+    public static Playlist LAST_PLAY = new Playlist(-2, "Last Play Tracks", 0);
+    public static Playlist TOP_TRACK = new Playlist(-3, "Top Tracks", 0);
 
     static {
         Context context = BaseApplication.getINSTANCE();
-        int nums = TrackLoader.getLastAddNums(context);
-        nums = Math.min(ConstantsUtil.LAST_ADD_TRACK_NUMS, nums);
-        LAST_ADD.setSongCount(nums);
-        nums = LastPlayStore.getInstance(context).queryNums(context);
-        LAST_PLAY.setSongCount(nums);
-        TOP_TRACK.setSongCount(nums);
+        int count = TrackLoader.getLastAddCount(context);
+        count = Math.min(ConstantsUtil.LAST_ADD_TRACK_NUMS, count);
+        LAST_ADD.setSongCount(count);
+        count = LastPlayStore.getInstance(context).queryNums(context);
+        LAST_PLAY.setSongCount(count);
+        TOP_TRACK.setSongCount(count);
     }
 
     public static Cursor makeCursor(final Context context) {
         return context.getContentResolver().query(
                 MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI,
-                null, null, null, null);
+                PROJECTION, null, null, null);
     }
 
-    public static List<Playlist> loadPlaylists(final Context context) {
+    public static List<Playlist> loadPlayLists(final Context context) {
         Cursor cursor = makeCursor(context);
-        List<Playlist> playlists = new ArrayList<>();
-        playlists.add(LAST_ADD);
-        playlists.add(TOP_TRACK);
-        playlists.add(LAST_PLAY);
+        List<Playlist> playLists = new ArrayList<>();
+        playLists.add(TOP_TRACK);
+        playLists.add(LAST_PLAY);
+        playLists.add(LAST_ADD);
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 long id = cursor.getLong(0);
-                String playlist = getPlaylistName(cursor.getString(1));
-                int num = getPlaylistNums(context, id);
+                String playlist = getPlayListName(cursor.getString(1));
+                int num = getPlaylistTrackCount(context, id);
                 if (num != 0) {
-                    playlists.add(new Playlist(id, playlist, num));
+                    playLists.add(new Playlist(id, playlist, num));
                 }
             } while (cursor.moveToNext());
         }
-        if (cursor != null) {
-            cursor.close();
-            cursor = null;
-        }
-        return playlists;
+        closeCursor(cursor);
+        return playLists;
     }
 
-    private static String getPlaylistName(String fullname) {
-        if (TextUtils.isEmpty(fullname)) return "";
-        String[] names = fullname.split("/");
+        public static void closeCursor(Cursor cursor) {
+                if (cursor != null) {
+                    cursor.close();
+                    cursor = null;
+                }
+            }
+
+    private static String getPlayListName(String rawName) {
+        if (TextUtils.isEmpty(rawName)) return "";
+        String[] names = rawName.split("/");
         int count = names.length;
         if (count > 0) return names[count - 1];
-        return fullname;
+        return rawName;
     }
 
-    public static long getAlbumIdByPlaylistId(final Context context, long id) {
-        if (id == -1) {
-//            return TrackLoader.getAlbumIdFromLastAdd(context);
-            return 2;
-        } else if(id == -2 || id == -3){
-            long trackId = LastPlayStore.getInstance(context).queryRandomId(context);
-            Track track = TrackLoader.loadTrack(context, trackId);
+    private static int getPlaylistTrackCount(final Context context, long playlistId) {
+        if (playlistId == -1) {
+            return LAST_ADD.getSongCount();
+        } else if(playlistId == -2){
+            return LAST_PLAY.getSongCount();
+        }else if(playlistId == -3){
+            return TOP_TRACK.getSongCount();
+        } else {
+            Cursor cursor = context.getContentResolver().query(
+                    MediaStore.Audio.Playlists.Members.getContentUri("external", playlistId),
+                    new String[]{"album_id"}, null, null, null);
+            int count = 0;
+            if (cursor != null && cursor.moveToFirst()) {
+                count = cursor.getCount();
+            }
+            closeCursor(cursor);
+            return count;
+        }
+    }
+
+    public static long getAlbumIdFromPlayList(final Context context, long playlistId) {
+        if (playlistId == -1) {
+            return TrackLoader.getAlbumIdFromLastAdd(context);
+        } else if(playlistId == -2){
+            long trackId = LastPlayStore.getInstance(context).queryFirstId(context);
+            Track track = TrackLoader.getTrack(context, trackId);
+            if (track != null) {
+                return track.getAlbumId();
+            }
+            return -1;
+        } else if(playlistId == -3){
+            long trackId = LastPlayStore.getInstance(context).queryLastId(context);
+            Track track = TrackLoader.getTrack(context, trackId);
             if (track != null) {
                 return track.getAlbumId();
             }
             return -1;
         }
         Cursor cursor = context.getContentResolver().query(
-                MediaStore.Audio.Playlists.Members.getContentUri("external", id),
+                MediaStore.Audio.Playlists.Members.getContentUri("external", playlistId),
                 new String[]{"album_id"}, null, null, null);
         long albumId = -1;
         if (cursor != null && cursor.moveToFirst()) {
             albumId = cursor.getLong(0);
         }
-        if (cursor != null) {
-            cursor.close();
-            cursor = null;
-        }
+        closeCursor(cursor);
         return albumId;
-    }
-
-    private static int getPlaylistNums(final Context context, long id) {
-        if (id == -1) {
-            return LAST_ADD.getSongCount();
-        } else if(id == -2){
-            return LAST_PLAY.getSongCount();
-        }else if(id == -3){
-            return TOP_TRACK.getSongCount();
-        }
-        Cursor cursor = context.getContentResolver().query(
-                MediaStore.Audio.Playlists.Members.getContentUri("external", id),
-                new String[]{"_id"}, null, null, null);
-        int num = 0;
-        if (cursor != null && cursor.moveToFirst()) {
-            num = cursor.getCount();
-        }
-        if (cursor != null) {
-            cursor.close();
-            cursor = null;
-        }
-        return num;
     }
 
 }

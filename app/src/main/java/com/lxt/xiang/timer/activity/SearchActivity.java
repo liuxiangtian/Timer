@@ -19,7 +19,7 @@ import com.lxt.xiang.timer.loader.TrackLoader;
 import com.lxt.xiang.timer.model.Album;
 import com.lxt.xiang.timer.model.Artist;
 import com.lxt.xiang.timer.model.Track;
-import com.lxt.xiang.timer.util.NaviUtil;
+import com.lxt.xiang.timer.util.NavUtil;
 
 import java.util.List;
 
@@ -61,7 +61,7 @@ public class SearchActivity extends BaseActivity implements SearchView.OnQueryTe
         if(item.getItemId()==android.R.id.home){
             finish();
         } else if(item.getItemId()==R.id.menu_settings){
-            NaviUtil.naviToSettingsActivity(this);
+            NavUtil.navToSettingsActivity(this);
         }
         return true;
     }

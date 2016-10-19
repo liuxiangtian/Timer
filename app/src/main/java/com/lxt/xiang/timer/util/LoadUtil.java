@@ -2,7 +2,6 @@ package com.lxt.xiang.timer.util;
 
 
 import android.content.Context;
-import android.util.Log;
 
 import com.lxt.xiang.timer.adaptor.AlbumAdaptor;
 import com.lxt.xiang.timer.adaptor.ArtistAdaptor;
@@ -70,7 +69,7 @@ public class LoadUtil {
     }
 
     public static void loadPlaylist(Context context, final PlaylistFragment.PlaylistAdaptor adaptor) {
-        Observable.just(PlaylistLoader.loadPlaylists(context))
+        Observable.just(PlaylistLoader.loadPlayLists(context))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<List<Playlist>>() {
@@ -83,7 +82,7 @@ public class LoadUtil {
                 });
     }
 
-    public static void loadTracksByAlbumId(Context context, long albumId, final TrackAdaptor trackAdaptor) {
+    public static void loadTracksByAlbum(Context context, long albumId, final TrackAdaptor trackAdaptor) {
         Observable.just(TrackLoader.loadTracksByAlbumId(context, albumId))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -97,7 +96,7 @@ public class LoadUtil {
                 });
     }
 
-    public static void loadTracksByArtistId(Context context, long artistId, final TrackAdaptor trackAdaptor) {
+    public static void loadTracksByArtist(Context context, long artistId, final TrackAdaptor trackAdaptor) {
         Observable.just(TrackLoader.loadTracksByArtistId(context, artistId))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -111,7 +110,7 @@ public class LoadUtil {
                 });
     }
 
-    public static void loadTracksByPlaylistId(Context context, long playlistId, final TrackAdaptor trackAdaptor) {
+    public static void loadTracksByPlaylist(Context context, long playlistId, final TrackAdaptor trackAdaptor) {
         Observable.just(TrackLoader.loadTracksByPlaylistId(context, playlistId))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

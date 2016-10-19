@@ -1,39 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/coodinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/app_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
-
-        <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/collapsing_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="?android:attr/actionBarSize"
-            app:contentScrim="?attr/colorPrimary"
-            app:expandedTitleMarginEnd="64dp"
-            app:expandedTitleMarginStart="48dp"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:statusBarScrim="@color/colorPrimaryDark">
-
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:elevation="5dp"
-                app:layout_collapseMode="pin"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
-
-        </android.support.design.widget.CollapsingToolbarLayout>
-
-    </android.support.design.widget.AppBarLayout>
 
     <ImageView
         android:id="@+id/album_art"
@@ -42,11 +12,28 @@
         android:scaleType="centerCrop"
         android:transitionName="transition_album_art" />
 
+    <TextView
+        android:id="@+id/text_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="24dp"
+        android:layout_marginLeft="48dp"
+        android:ellipsize="end"
+        android:text="title"
+        android:fitsSystemWindows="true"
+        android:singleLine="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        android:textSize="32sp" />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/transparent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        android:layout_below="@+id/text_title"
+        android:layout_marginTop="6dp"
+        android:paddingLeft="6dp"
+        android:background="@android:color/transparent" />
 
-</android.support.design.widget.CoordinatorLayout>
+</android.support.percent.PercentRelativeLayout>

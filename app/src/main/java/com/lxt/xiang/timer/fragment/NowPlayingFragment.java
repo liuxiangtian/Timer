@@ -22,10 +22,9 @@ import com.lxt.xiang.timer.ITimerInterface;
 import com.lxt.xiang.timer.R;
 import com.lxt.xiang.timer.activity.BaseActivity;
 import com.lxt.xiang.timer.adaptor.TrackAdaptor;
-import com.lxt.xiang.timer.listener.OnPlayStateChangeListener;
 import com.lxt.xiang.timer.model.Track;
+import com.lxt.xiang.timer.util.BitmapUtil;
 import com.lxt.xiang.timer.util.ConstantsUtil;
-import com.lxt.xiang.timer.util.ImageUtil;
 import com.lxt.xiang.timer.util.PlayUtil;
 
 import net.steamcrafted.materialiconlib.MaterialIconView;
@@ -33,7 +32,7 @@ import net.steamcrafted.materialiconlib.MaterialIconView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class NowPlayingFragment extends Fragment implements OnPlayStateChangeListener {
+public class NowPlayingFragment extends Fragment {
 
     @Bind(R.id.album_art)
     ImageView albumArt;
@@ -159,24 +158,19 @@ public class NowPlayingFragment extends Fragment implements OnPlayStateChangeLis
         if (baseActivity == null) {
             return;
         }
-        baseActivity.addOnPlayStateChangeListener(this);
         update();
     }
 
     private void update() {
-        BaseActivity baseActivity = (BaseActivity) getActivity();
-        if (baseActivity == null) {
-            return;
-        }
-        ITimerInterface iTimerInterface = baseActivity.iTimerService;
-        if (iTimerInterface == null) return;
+        if(!PlayUtil.checkActivityIsBind(getActivity())) return;
+        ITimerInterface iTimerInterface = PlayUtil.getITimerService(getActivity());
         try {
             Track track = iTimerInterface.getCurrentTrack();
             if (track==null) return;
             songTitle.setText(track.getTitle());
             songArtist.setText(track.getArtist());
             songAlbum.setText(track.getAlbum());
-            ImageUtil.loadBitmap(albumArt, track.getAlbumId());
+            BitmapUtil.loadBlurBitmap(albumArt, track.getAlbumId());
             long duration = track.getDuration();
             long seekPosition = iTimerInterface.getSeekPosition();
             songDuration.setText(PlayUtil.durationToString(duration));
@@ -192,31 +186,20 @@ public class NowPlayingFragment extends Fragment implements OnPlayStateChangeLis
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        int flag = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+        getActivity().getWindow().getDecorView().setSystemUiVisibility(flag);
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         BaseActivity baseActivity = (BaseActivity) getActivity();
         if (baseActivity == null) {
             return;
         }
-        baseActivity.removeOnPlayStateChangeListener(this);
     }
 
-    @Override
-    public void onMetaChange() {
 
-    }
-
-    @Override
-    public void onMetaPlay() {
-        update();
-    }
-
-    @Override
-    public void onMetaPause() {
-    }
-
-    @Override
-    public void onMetaStop() {
-
-    }
 }

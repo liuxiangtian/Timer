@@ -5,6 +5,8 @@ import android.os.Handler;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.graphics.Palette;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,10 +18,10 @@ import android.widget.TextView;
 import com.lxt.xiang.timer.ITimerInterface;
 import com.lxt.xiang.timer.R;
 import com.lxt.xiang.timer.activity.BaseActivity;
-import com.lxt.xiang.timer.listener.OnPlayStateChangeListener;
+import com.lxt.xiang.timer.listener.PlayObserver;
 import com.lxt.xiang.timer.model.Track;
+import com.lxt.xiang.timer.util.BitmapUtil;
 import com.lxt.xiang.timer.util.ConstantsUtil;
-import com.lxt.xiang.timer.util.ImageUtil;
 import com.lxt.xiang.timer.util.PlayUtil;
 
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder;
@@ -28,7 +30,7 @@ import net.steamcrafted.materialiconlib.MaterialIconView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class QuickFragment extends Fragment implements OnPlayStateChangeListener {
+public class QuickFragment extends Fragment {
 
     @Bind(R.id.album_art)
     ImageView albumArt;
@@ -46,12 +48,17 @@ public class QuickFragment extends Fragment implements OnPlayStateChangeListener
     ProgressBar progressBarFast;
     @Bind(R.id.song_progress)
     SeekBar progressBar;
-    @Bind(R.id.album_art_fast) ImageView albumArtFast;
-    @Bind(R.id.text_title_fast) TextView titleFastText;
-    @Bind(R.id.text_artist_fast) TextView artistFastText;
-    @Bind(R.id.icon_fast) MaterialIconView iconFast;
+    @Bind(R.id.album_art_fast)
+    ImageView albumArtFast;
+    @Bind(R.id.text_title_fast)
+    TextView titleFastText;
+    @Bind(R.id.text_artist_fast)
+    TextView artistFastText;
+    @Bind(R.id.icon_fast)
+    MaterialIconView iconFast;
 
     Handler handler = new Handler();
+
     private View.OnClickListener togglePlayListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -59,6 +66,7 @@ public class QuickFragment extends Fragment implements OnPlayStateChangeListener
             PlayUtil.togglePlay(baseActivity);
         }
     };
+
     private View.OnClickListener nextPlayListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -66,6 +74,7 @@ public class QuickFragment extends Fragment implements OnPlayStateChangeListener
             PlayUtil.playNext(baseActivity);
         }
     };
+
     private View.OnClickListener prevPlayListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -75,10 +84,12 @@ public class QuickFragment extends Fragment implements OnPlayStateChangeListener
     };
 
     private SeekBar.OnSeekBarChangeListener seekListener = new SeekBar.OnSeekBarChangeListener() {
+
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             BaseActivity baseActivity = (BaseActivity) getActivity();
             PlayUtil.seek(baseActivity, progress);
+            Log.i("main", "onProgressChanged: " + progress);
         }
 
         @Override
@@ -92,31 +103,60 @@ public class QuickFragment extends Fragment implements OnPlayStateChangeListener
         }
     };
 
-    public static QuickFragment newInstance() {
-        return new QuickFragment();
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
+    private Runnable refreshViewRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!PlayUtil.checkActivityIsBind(getActivity())) return;
+            ITimerInterface iTimerInterface = PlayUtil.getITimerService(getActivity());
+            try {
+                Track track = iTimerInterface.getCurrentTrack();
+                if (track == null) return;
+                titleFastText.setText(track.getTitle());
+                titleText.setText(track.getTitle());
+                artistFastText.setText(track.getArtist());
+                artistText.setText(track.getArtist());
+                if (iTimerInterface.isPlaying()) {
+                    iconFast.setIcon(MaterialDrawableBuilder.IconValue.PAUSE);
+                    playIcon.setIcon(MaterialDrawableBuilder.IconValue.PAUSE);
+                } else {
+                    iconFast.setIcon(MaterialDrawableBuilder.IconValue.PLAY);
+                    playIcon.setIcon(MaterialDrawableBuilder.IconValue.PLAY);
+                }
+                BitmapUtil.loadBitmap(albumArtFast, track.getAlbumId());
+                BitmapUtil.loadBlurBitmap(albumArt, track.getAlbumId(), new Palette.PaletteAsyncListener() {
+                    @Override
+                    public void onGenerated(Palette palette) {
+                        Palette.Swatch swatch = palette.getDominantSwatch();
+                        if (swatch != null) {
+                            titleText.setTextColor(swatch.getTitleTextColor());
+                            artistText.setTextColor(swatch.getTitleTextColor());
+                        }
+                    }
+                });
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    };
 
     private Runnable updateRunnable = new Runnable() {
         @Override
         public void run() {
-            BaseActivity baseActivity = (BaseActivity) getActivity();
-            if (baseActivity == null) {
-                return;
-            }
-            ITimerInterface iTimerInterface = baseActivity.iTimerService;
-            if (iTimerInterface == null) return;
+            if (!PlayUtil.checkActivityIsBind(getActivity())) return;
+            ITimerInterface iTimerInterface = PlayUtil.getITimerService(getActivity());
             try {
                 Track track = iTimerInterface.getCurrentTrack();
+                if (track == null) return;
                 long position = iTimerInterface.getSeekPosition();
                 long duration = track.getDuration();
-                progressBar.setProgress((int) (position*ConstantsUtil.PROCESS_MAX/duration));
-                progressBarFast.setProgress((int) (position*ConstantsUtil.PROCESS_MAX/duration));
-                if(iTimerInterface.isPlaying()){
+                int newProgress = (int) (position * ConstantsUtil.PROCESS_MAX / duration);
+                if (newProgress > progressBar.getProgress()) {
+                    progressBar.setProgress(newProgress);
+                }
+                if (newProgress > progressBarFast.getProgress()) {
+                    progressBarFast.setProgress(newProgress);
+                }
+                if (iTimerInterface.isPlaying()) {
                     handler.postDelayed(updateRunnable, 1000);
                 }
             } catch (RemoteException e) {
@@ -125,15 +165,25 @@ public class QuickFragment extends Fragment implements OnPlayStateChangeListener
         }
     };
 
+    private PlayObserver playObserver = new PlayObserver() {
+
+        @Override
+        public void onMetaPlay() {
+            handler.postDelayed(updateRunnable, 200);
+            handler.postDelayed(refreshViewRunnable, 200);
+        }
+    };
+
+    public static QuickFragment newInstance() {
+        return new QuickFragment();
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_quick_control, container, false);
-        ButterKnife.bind(this,root);
-        BaseActivity baseActivity = (BaseActivity) getActivity();
-        if (baseActivity != null) {
-            baseActivity.addOnPlayStateChangeListener(this);
-        }
+        ButterKnife.bind(this, root);
+        PlayUtil.registerPlayObserver(getActivity(), playObserver);
         return root;
     }
 
@@ -147,68 +197,14 @@ public class QuickFragment extends Fragment implements OnPlayStateChangeListener
         progressBar.setOnSeekBarChangeListener(seekListener);
         progressBar.setMax(ConstantsUtil.PROCESS_MAX);
         progressBarFast.setMax(ConstantsUtil.PROCESS_MAX);
-        update();
-    }
-
-    private void update() {
-        BaseActivity baseActivity = (BaseActivity) getActivity();
-        if (baseActivity == null) {
-            return;
-        }
-        ITimerInterface iTimerInterface = baseActivity.iTimerService;
-        if (iTimerInterface == null) return;
-        try {
-            Track track = iTimerInterface.getCurrentTrack();
-            if (track==null) return;
-            titleFastText.setText(track.getTitle());
-            titleText.setText(track.getTitle());
-            artistFastText.setText(track.getArtist());
-            artistText.setText(track.getArtist());
-            if(iTimerInterface.isPlaying()){
-                iconFast.setIcon(MaterialDrawableBuilder.IconValue.PAUSE);
-                playIcon.setIcon(MaterialDrawableBuilder.IconValue.PAUSE);
-            } else {
-                iconFast.setIcon(MaterialDrawableBuilder.IconValue.PLAY);
-                playIcon.setIcon(MaterialDrawableBuilder.IconValue.PLAY);
-            }
-            ImageUtil.loadBlurBitmap(albumArtFast, track.getAlbumId());
-            ImageUtil.loadBitmap(albumArt, track.getAlbumId());
-            long duration = track.getDuration();
-            long seekPosition = iTimerInterface.getSeekPosition();
-            progressBar.setProgress((int) (seekPosition*ConstantsUtil.PROCESS_MAX/duration));
-            progressBarFast.setProgress((int) (seekPosition*ConstantsUtil.PROCESS_MAX/duration));
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
+        handler.postDelayed(updateRunnable, 200);
+        handler.postDelayed(refreshViewRunnable, 200);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        BaseActivity baseActivity = (BaseActivity) getActivity();
-        if (baseActivity != null) {
-            baseActivity.removeOnPlayStateChangeListener(this);
-        }
+        PlayUtil.unRegisterPlayObserver(getActivity(), playObserver);
     }
 
-    @Override
-    public void onMetaChange() {
-        update();
-    }
-
-    @Override
-    public void onMetaPlay() {
-        update();
-        handler.post(updateRunnable);
-    }
-
-    @Override
-    public void onMetaPause() {
-
-    }
-
-    @Override
-    public void onMetaStop() {
-
-    }
 }

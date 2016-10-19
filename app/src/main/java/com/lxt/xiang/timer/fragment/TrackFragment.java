@@ -1,6 +1,7 @@
 package com.lxt.xiang.timer.fragment;
 
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,7 +16,7 @@ import android.view.ViewGroup;
 import com.lxt.xiang.timer.R;
 import com.lxt.xiang.timer.activity.BaseActivity;
 import com.lxt.xiang.timer.adaptor.TrackAdaptor;
-import com.lxt.xiang.timer.listener.OnPlayStateChangeListener;
+import com.lxt.xiang.timer.listener.PlayObserver;
 import com.lxt.xiang.timer.loader.TrackLoader;
 import com.lxt.xiang.timer.model.Track;
 import com.lxt.xiang.timer.util.LoadUtil;
@@ -26,12 +27,28 @@ import com.lxt.xiang.timer.view.DivideItemDecoration;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class TrackFragment extends Fragment implements TrackAdaptor.OnItemClickListener, OnPlayStateChangeListener {
+public class TrackFragment extends Fragment implements TrackAdaptor.OnItemClickListener {
 
     @Bind(R.id.recycler_view)
     RecyclerView recyclerView;
     private TrackAdaptor trackAdaptor;
     private String trackSort;
+
+
+    private PlayObserver playStateObserver = new PlayObserver(){
+
+        @Override
+        public void onMetaPlay() {
+            BaseActivity baseActivity = (BaseActivity) getActivity();
+            try {
+                Track track = baseActivity.iTimerService.getCurrentTrack();
+                trackAdaptor.refreshTrack(track);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
+    };
 
     public static TrackFragment newInstance() {
         return new TrackFragment();
@@ -48,10 +65,7 @@ public class TrackFragment extends Fragment implements TrackAdaptor.OnItemClickL
         View root = inflater.inflate(R.layout.fragment_standant_recycler, container, false);
         ButterKnife.bind(this,root);
         trackSort = PrefsUtil.getLibraryTrackSort();
-        BaseActivity baseActivity = (BaseActivity) getActivity();
-        if (baseActivity != null) {
-            baseActivity.addOnPlayStateChangeListener(this);
-        }
+        PlayUtil.registerPlayObserver(getActivity(), playStateObserver);
         return root;
     }
 
@@ -63,6 +77,7 @@ public class TrackFragment extends Fragment implements TrackAdaptor.OnItemClickL
         trackAdaptor.setOnItemClickListener(this);
         recyclerView.setAdapter(trackAdaptor);
         recyclerView.addItemDecoration(new DivideItemDecoration(1));
+        LoadUtil.loadTracks(getContext(), trackSort, trackAdaptor);
     }
 
     @Override
@@ -72,19 +87,10 @@ public class TrackFragment extends Fragment implements TrackAdaptor.OnItemClickL
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        LoadUtil.loadTracks(getContext(), trackSort, trackAdaptor);
-    }
-
-    @Override
     public void onDestroyView() {
         super.onDestroyView();
         PrefsUtil.setLibraryTrackSort(trackSort);
-        BaseActivity baseActivity = (BaseActivity) getActivity();
-        if (baseActivity != null) {
-            baseActivity.removeOnPlayStateChangeListener(this);
-        }
+        PlayUtil.unRegisterPlayObserver(getActivity(), playStateObserver);
     }
 
     @Override
@@ -130,26 +136,6 @@ public class TrackFragment extends Fragment implements TrackAdaptor.OnItemClickL
     public void onItemClick(Track item, int position, long[] ids) {
         BaseActivity baseActivity = (BaseActivity) getActivity();
         PlayUtil.playTracks(baseActivity,ids, item.getId(), position);
-        trackAdaptor.notifyItem(position,true);
     }
 
-    @Override
-    public void onMetaChange() {
-
-    }
-
-    @Override
-    public void onMetaPlay() {
-
-    }
-
-    @Override
-    public void onMetaPause() {
-
-    }
-
-    @Override
-    public void onMetaStop() {
-
-    }
 }

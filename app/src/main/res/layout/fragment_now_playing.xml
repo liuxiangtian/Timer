@@ -69,7 +69,6 @@
                     android:paddingTop="18dp"
                     android:progress="30"/>
 
-
                 <TextView
                     android:id="@+id/song_album"
                     android:layout_width="wrap_content"
@@ -116,7 +115,7 @@
                         android:paddingLeft="50dp"
                         android:scaleType="center"
                         app:materialIcon="skip_previous"
-                        app:materialIconColor="#fff"
+                        app:materialIconColor="#f33"
                         app:materialIconSize="35dp"/>
 
                     <FrameLayout
@@ -131,6 +130,7 @@
                             android:id="@+id/playpause"
                             android:layout_width="23dp"
                             android:layout_height="23dp"
+                            android:backgroundTint="#f00"
                             android:layout_gravity="center"/>
 
                         <View
@@ -150,7 +150,7 @@
                         android:paddingRight="50dp"
                         android:scaleType="center"
                         app:materialIcon="skip_next"
-                        app:materialIconColor="#fff"
+                        app:materialIconColor="#f00"
                         app:materialIconSize="35dp"/>
                 </LinearLayout>
 

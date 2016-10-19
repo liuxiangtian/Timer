@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.lxt.xiang.timer.R;
 import com.lxt.xiang.timer.model.Track;
-import com.lxt.xiang.timer.util.ImageUtil;
+import com.lxt.xiang.timer.util.BitmapUtil;
 
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder;
 import net.steamcrafted.materialiconlib.MaterialIconView;
@@ -44,14 +44,14 @@ public class TrackAdaptor extends RecyclerView.Adapter<TrackAdaptor.VH> {
 
     @Override
     public void onBindViewHolder(VH holder, int position) {
-        final Track item = mTracks.get(position);
+        final Track track = mTracks.get(position);
         if(textColor!=-1){
             holder.trackTitle.setTextColor(textColor);
             holder.trackArtist.setTextColor(textColor);
         }
-        holder.trackTitle.setText(item.getTitle());
-        holder.trackArtist.setText(item.getArtist());
-        ImageUtil.loadBitmap(holder.albumArt, item.getAlbumId());
+        holder.trackTitle.setText(track.getTitle());
+        holder.trackArtist.setText(track.getArtist());
+        BitmapUtil.loadBitmap(holder.albumArt, track.getAlbumId());
         if(position==currentPosition){
             holder.icon.setVisibility(View.VISIBLE);
             if(isPlaying){
@@ -90,6 +90,21 @@ public class TrackAdaptor extends RecyclerView.Adapter<TrackAdaptor.VH> {
     public void setTextColor(int color) {
         textColor = color;
         notifyDataSetChanged();
+    }
+
+    public int refreshTrack(Track track) {
+        if (track == null) {
+            return 0;
+        }
+        int position = mTracks.indexOf(track);
+        if(position!=-1){
+            int oldPosition = currentPosition;
+            currentPosition = position;
+            notifyItemChanged(oldPosition);
+            notifyItemChanged(currentPosition);
+            return position;
+        }
+        return 0;
     }
 
     public interface OnItemClickListener {

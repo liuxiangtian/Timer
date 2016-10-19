@@ -12,7 +12,7 @@ import com.lxt.xiang.timer.R;
 import com.lxt.xiang.timer.model.Album;
 import com.lxt.xiang.timer.model.Artist;
 import com.lxt.xiang.timer.model.Track;
-import com.lxt.xiang.timer.util.ImageUtil;
+import com.lxt.xiang.timer.util.BitmapUtil;
 
 import net.steamcrafted.materialiconlib.MaterialIconView;
 
@@ -86,17 +86,17 @@ public class SearchAdaptor extends RecyclerView.Adapter<SearchAdaptor.VH> {
             Album album = albums.get(position - 2);
             itemHolder.titleText.setText(album.getAlbum());
             itemHolder.contentText.setText(album.getAlbumArt() + " - " + album.getTrackNum() + " tracks");
-            ImageUtil.loadBitmap(itemHolder.albumArt, album.getId());
+            BitmapUtil.loadBitmap(itemHolder.albumArt, album.getId());
         } else if (type == CONTENT_ARTIST) {
             ItemHolder itemHolder = (ItemHolder) holder;
             Artist artist = artists.get(position - 3);
-            ImageUtil.loadBitmapBtArtistId(itemHolder.albumArt, artist.getId());
+            BitmapUtil.loadBitmapByArtistId(itemHolder.albumArt, artist.getId());
             itemHolder.titleText.setText(artist.getArtist());
             itemHolder.contentText.setText(artist.getAlbumNum() + " albums - " + artist.getTrackNum() + " tracks");
         } else if (type == CONTENT_TRACK) {
             ItemHolder itemHolder = (ItemHolder) holder;
             Track track = tracks.get(position - 4);
-            ImageUtil.loadBitmap(itemHolder.albumArt, track.getAlbumId());
+            BitmapUtil.loadBitmap(itemHolder.albumArt, track.getAlbumId());
             itemHolder.titleText.setText(track.getTitle());
             itemHolder.contentText.setText(track.getAlbum() + " - " + track.getArtist());
         }

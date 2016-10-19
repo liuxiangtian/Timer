@@ -7,16 +7,17 @@
     <android.support.percent.PercentRelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_marginBottomPercent="10%"
+        app:layout_marginBottomPercent="8%"
         app:layout_marginLeftPercent="10%"
         app:layout_marginRightPercent="10%"
-        app:layout_marginTopPercent="10%">
+        app:layout_marginTopPercent="8%">
 
         <ImageView
             android:id="@+id/album_art"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
+            android:background="@drawable/above_shadow"
             android:transitionName="transition_album_art" />
 
         <TextView
@@ -25,14 +26,13 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="20dp"
             android:text="AutoPlaylist"
             android:ellipsize="end"
             android:singleLine="true"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textColor="#fff"
-            android:textSize="18sp" />
+            android:textSize="24sp" />
 
         <TextView
             android:id="@+id/text_playlist_index"
@@ -40,14 +40,14 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginRight="24dp"
+            android:layout_marginTop="24dp"
             android:text="01"
             android:ellipsize="end"
             android:singleLine="true"
             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
             android:textColor="#fff"
-            android:textSize="24sp" />
+            android:textSize="32sp" />
 
         <TextView
             android:id="@+id/text_playlist_details"
@@ -55,14 +55,14 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
-            android:layout_marginLeft="10dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginLeft="18dp"
+            android:layout_marginBottom="24dp"
             android:text="NAME AND NUMS"
             android:ellipsize="end"
             android:singleLine="true"
-            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
             android:textColor="#fff"
-            android:textSize="21sp" />
+            android:textSize="18sp" />
 
     </android.support.percent.PercentRelativeLayout>
 

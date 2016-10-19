@@ -7,6 +7,7 @@
 
     <android.support.percent.PercentRelativeLayout
         android:id="@+id/content_frame_layout"
+        android:visibility="invisible"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -32,10 +33,9 @@
                 android:ellipsize="end"
                 android:gravity="center"
                 android:singleLine="true"
-                android:text="111"
-                android:layout_marginTop="24dp"
+                android:text=""
+                android:layout_marginTop="12dp"
                 android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                android:textColor="#fff"
                 android:textSize="32sp" />
 
             <TextView
@@ -45,11 +45,10 @@
                 android:ellipsize="end"
                 android:gravity="center"
                 android:singleLine="true"
-                android:text="111"
-                android:layout_marginTop="12dp"
+                android:text=""
+                android:layout_marginTop="6dp"
                 android:layout_marginBottom="12dp"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:textColor="#ffffff"
                 android:textSize="24sp" />
 
         </LinearLayout>
@@ -62,7 +61,7 @@
             android:layout_gravity="center"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="8dp"
             android:layout_below="@+id/text_area"
             android:maxHeight="2dp"
             android:layout_marginTop="16dp"
@@ -76,6 +75,7 @@
             android:layout_centerHorizontal="true"
             android:scaleType="center"
             app:materialIcon="play"
+            app:materialIconColor="#FF4081"
             app:materialIconSize="36dp" />
 
         <net.steamcrafted.materialiconlib.MaterialIconView
@@ -86,7 +86,8 @@
             android:layout_below="@+id/song_progress"
             android:scaleType="center"
             app:layout_marginRightPercent="10%"
-            app:materialIcon="arrow_left_bold"
+            app:materialIcon="skip_next"
+            app:materialIconColor="#FF4081"
             app:materialIconSize="36dp" />
 
         <net.steamcrafted.materialiconlib.MaterialIconView
@@ -97,7 +98,8 @@
             android:layout_below="@+id/song_progress"
             android:scaleType="center"
             app:layout_marginLeftPercent="10%"
-            app:materialIcon="arrow_right_bold"
+            app:materialIcon="skip_previous"
+            app:materialIconColor="#FF4081"
             app:materialIconSize="36dp" />
 
     </android.support.percent.PercentRelativeLayout>
@@ -126,8 +128,9 @@
                 style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:progressDrawable="@drawable/progress_bar"
                 android:layout_gravity="top"
-                android:maxHeight="5dp"
+                android:maxHeight="3dp"
                 android:progress="0" />
 
             <TextView
@@ -138,7 +141,6 @@
                 android:ellipsize="end"
                 android:singleLine="true"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:textColor="#000"
                 android:textSize="16sp" />
 
             <TextView
@@ -149,7 +151,6 @@
                 android:ellipsize="end"
                 android:singleLine="true"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:textColor="#000"
                 android:textSize="10sp" />
 
         </LinearLayout>
@@ -159,7 +160,7 @@
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:scaleType="center"
-            app:materialIconColor="#fff"
+            app:materialIconColor="#FF4081"
             android:layout_gravity="right|top"
             app:materialIcon="play"
             app:materialIconSize="24dp" />

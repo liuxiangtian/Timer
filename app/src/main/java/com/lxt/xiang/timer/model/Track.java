@@ -171,4 +171,17 @@ public class Track implements Parcelable{
         dest.writeLong(duration);
         dest.writeInt(year);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj==this) return true;
+        if(!(obj instanceof Track)) return false;
+        Track track = (Track) obj;
+        if(track.id==this.id && track.album.equals(this.album) && track.artist.equals(this.artist)){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

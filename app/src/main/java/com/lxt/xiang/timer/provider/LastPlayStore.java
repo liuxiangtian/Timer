@@ -136,7 +136,7 @@ public class LastPlayStore {
             if (cursor != null && cursor.moveToFirst()) {
                 int num = cursor.getInt(1);
                 values.put(PLAYCOUNT, num+1);
-                database.update(TABLE_NAME, values, null, null);
+                database.update(TABLE_NAME, values, "id=?", new String[]{String.valueOf(id)});
             } else {
                 values.put(PLAYCOUNT, 1);
                 database.insert(TABLE_NAME, null, values);
@@ -167,10 +167,24 @@ public class LastPlayStore {
         return nums;
     }
 
-    public long queryRandomId(Context context) {
+    public long queryFirstId(Context context) {
         final SQLiteDatabase database = TimerDB.getInstance(context).getReadableDatabase();
         Cursor cursor =  database.query(TABLE_NAME,
-                new String[]{ID}, null, null, null, null, null, null);
+                new String[]{ID}, null, null, null, null, DATE+" DESC", null);
+        long id = -1;
+        if(cursor!=null && cursor.moveToFirst()){
+            Random random = new Random();
+            cursor.moveToPosition(random.nextInt(cursor.getCount()));
+            id = cursor.getLong(0);
+            closeCursor(cursor);
+        }
+        return id;
+    }
+
+    public long queryLastId(Context context) {
+        final SQLiteDatabase database = TimerDB.getInstance(context).getReadableDatabase();
+        Cursor cursor =  database.query(TABLE_NAME,
+                new String[]{ID}, null, null, null, null, PLAYCOUNT+" DESC", null);
         long id = -1;
         if(cursor!=null && cursor.moveToFirst()){
             Random random = new Random();

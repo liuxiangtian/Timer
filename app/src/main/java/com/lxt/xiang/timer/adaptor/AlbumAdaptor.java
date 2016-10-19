@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import com.lxt.xiang.timer.R;
 import com.lxt.xiang.timer.model.Album;
-import com.lxt.xiang.timer.util.ImageUtil;
+import com.lxt.xiang.timer.util.BitmapUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,33 +43,38 @@ public class AlbumAdaptor extends RecyclerView.Adapter<AlbumAdaptor.VH> {
 
     @Override
     public void onBindViewHolder(final VH holder, int position) {
-        final Album item = mAlbums.get(position);
-        Palette.Swatch swatch = mCache.get(item.getId());
+        final Album album = mAlbums.get(position);
+        Palette.Swatch swatch = mCache.get(album.getId());
         if(swatch!=null){
-            holder.title.setTextColor(swatch.getTitleTextColor());
-            holder.content.setTextColor(swatch.getTitleTextColor());
-            holder.footerView.setBackgroundColor(swatch.getRgb());
-            ImageUtil.loadBitmap(holder.albumArt, item.getId());
-            holder.title.setText(item.getAlbum());
-            holder.content.setText(item.getAlbumArt()+" | "+item.getTrackNum()+" tracks");
+            BitmapUtil.loadBitmap(holder.albumArt, album.getId());
+            updateItemHolder(holder, album, swatch);
         } else {
-            ImageUtil.loadBitmap(holder.albumArt, item.getId(), new Palette.PaletteAsyncListener() {
+            BitmapUtil.loadBitmap(holder.albumArt, album.getId(), new Palette.PaletteAsyncListener() {
                 @Override
                 public void onGenerated(Palette palette) {
-                    Palette.Swatch swatch = palette.getVibrantSwatch();
-                    if(swatch!=null){
-                        int bgColor = swatch.getRgb();
-                        holder.footerView.setBackgroundColor(bgColor);
-                        int textColor = swatch.getTitleTextColor();
-                        holder.title.setTextColor(textColor);
-                        holder.content.setTextColor(textColor);
-                        holder.title.setText(item.getAlbum());
-                        holder.content.setText(item.getAlbumArt()+" | "+item.getTrackNum()+" tracks");
-                        mCache.put(item.getId(), swatch);
+                    Palette.Swatch newSwatch = palette.getVibrantSwatch();
+                    if(newSwatch!=null){
+                        updateItemHolder(holder, album, newSwatch);
+                        mCache.put(album.getId(), newSwatch);
+                    } else {
+                        updateItemHolder(holder, album);
                     }
                 }
             });
         }
+    }
+
+    private void updateItemHolder(VH holder, Album album) {
+        holder.title.setText(album.getAlbum());
+        holder.content.setText(album.getArtist()+" | "+album.getTrackNum()+" tracks");
+    }
+
+    private void updateItemHolder(VH holder, Album album, Palette.Swatch swatch) {
+        holder.title.setTextColor(swatch.getTitleTextColor());
+        holder.content.setTextColor(swatch.getTitleTextColor());
+        holder.footerView.setBackgroundColor(swatch.getRgb());
+        holder.title.setText(album.getAlbum());
+        holder.content.setText(album.getArtist()+" | "+album.getTrackNum()+" tracks");
     }
 
     @Override
@@ -117,4 +122,5 @@ public class AlbumAdaptor extends RecyclerView.Adapter<AlbumAdaptor.VH> {
             }
         }
     }
+
 }

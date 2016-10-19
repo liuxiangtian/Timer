@@ -1,13 +1,14 @@
 package com.lxt.xiang.timer.activity;
 
-import android.content.Context;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.RemoteException;
+import android.os.IBinder;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,10 +22,12 @@ import com.lxt.xiang.timer.fragment.NowPlayingFragment;
 import com.lxt.xiang.timer.fragment.PlaylistFragment;
 import com.lxt.xiang.timer.fragment.QueueFragment;
 import com.lxt.xiang.timer.fragment.QuickFragment;
+import com.lxt.xiang.timer.listener.PlayObserver;
 import com.lxt.xiang.timer.loader.TrackLoader;
 import com.lxt.xiang.timer.model.Track;
-import com.lxt.xiang.timer.util.ImageUtil;
-import com.lxt.xiang.timer.util.NaviUtil;
+import com.lxt.xiang.timer.util.BitmapUtil;
+import com.lxt.xiang.timer.util.NavUtil;
+import com.lxt.xiang.timer.util.PlayUtil;
 import com.lxt.xiang.timer.util.PrefsUtil;
 import com.lxt.xiang.timer.view.SlidingUpPanelLayout;
 
@@ -56,6 +59,7 @@ public class MainActivity extends BaseActivity
 
     private Handler handler;
     private String navigation;
+    private int destiny;
     private Map<String, Runnable> naviRunnables;
     private String themeType;
 
@@ -65,6 +69,7 @@ public class MainActivity extends BaseActivity
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.main_frame_layout, MainFragment.newInstance())
                     .commit();
+            slidingPanel.setPanelHeight(56* destiny);
         }
     };
 
@@ -75,17 +80,21 @@ public class MainActivity extends BaseActivity
                     .replace(R.id.main_frame_layout, PlaylistFragment.newInstance())
                     .addToBackStack("PLAYLIST")
                     .commit();
+            slidingPanel.setPanelHeight(56* destiny);
         }
     };
+
     private Runnable toPlayQueue = new Runnable() {
         @Override
         public void run() {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.main_frame_layout, QueueFragment.newInstance())
-                        .addToBackStack("PLAYQUEUE")
+                    .addToBackStack("PLAYQUEUE")
                     .commit();
+            slidingPanel.setPanelHeight(56* destiny);
         }
     };
+
     private Runnable toNowPlaying = new Runnable() {
         @Override
         public void run() {
@@ -96,12 +105,14 @@ public class MainActivity extends BaseActivity
             slidingPanel.setPanelHeight(0);
         }
     };
+
     private Runnable toQuickControl = new Runnable() {
         @Override
         public void run() {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fast_frame_layout, QuickFragment.newInstance())
                     .commit();
+            slidingPanel.setPanelHeight(56* destiny);
         }
     };
 
@@ -109,18 +120,31 @@ public class MainActivity extends BaseActivity
             = new SlidingUpPanelLayout.SimplePanelSlideListener() {
         @Override
         public void onPanelSlide(View panel, float slideOffset) {
+            panel.findViewById(R.id.fast_control).setVisibility(View.VISIBLE);
+            panel.findViewById(R.id.content_frame_layout).setVisibility(View.VISIBLE);
             panel.findViewById(R.id.fast_control).setAlpha(1 - slideOffset);
             panel.findViewById(R.id.content_frame_layout).setAlpha(slideOffset);
         }
 
         @Override
         public void onPanelCollapsed(View panel) {
-//            panel.findViewById(R.id.content_frame_layout).setVisibility(View.INVISIBLE);
+            panel.findViewById(R.id.content_frame_layout).setVisibility(View.INVISIBLE);
         }
 
         @Override
         public void onPanelExpanded(View panel) {
+            panel.findViewById(R.id.fast_control).setVisibility(View.INVISIBLE);
         }
+    };
+
+    private PlayObserver playStateObserver = new PlayObserver(){
+
+        @Override
+        public void onMetaPlay() {
+            super.onMetaPlay();
+            updateHeader();
+        }
+
     };
 
     @Override
@@ -134,12 +158,16 @@ public class MainActivity extends BaseActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        setupViews(this);
-        setupData(this);
+        handler = new Handler();
+        setupViews();
+        setupData();
     }
 
-    private void setupData(final Context context) {
-        handler = new Handler();
+    private void setupData() {
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindow().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        destiny = (int) metrics.density;
+
         naviRunnables = new HashMap<>();
         naviRunnables.put(NAVI_LIBRARY, toLibrary);
         naviRunnables.put(NAVI_PLAYLIST, toPlaylist);
@@ -154,15 +182,21 @@ public class MainActivity extends BaseActivity
             handler.post(naviRunnables.get(navigation));
         }
         handler.post(toQuickControl);
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                slidingPanel.expandPanel();
+                slidingPanel.collapsePanel();
+            }
+        });
     }
 
-    private void setupViews(final Context context) {
+    private void setupViews() {
         View header = navView.getHeaderView(0);
         headerImage = (ImageView) header.findViewById(R.id.header_imageView);
         headerTrack = (TextView) header.findViewById(R.id.header_track);
         headerArtist = (TextView) header.findViewById(R.id.header_artist);
 
-        slidingPanel.collapsePanel();
         slidingPanel.setPanelSlideListener(panelSlideListener);
 
         navView.setNavigationItemSelectedListener(this);
@@ -187,37 +221,32 @@ public class MainActivity extends BaseActivity
         navView.setNavigationItemSelectedListener(this);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        onMetaChange();
+    private void updateHeader() {
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Track track = PlayUtil.getCurrentTrack(iTimerService);
+                if (track == null) {
+                    track = TrackLoader.getRandomTrackFromCursor(MainActivity.this);
+                }
+                headerTrack.setText(track.getTitle());
+                headerArtist.setText(track.getArtist());
+                BitmapUtil.loadBitmap(headerImage, track.getAlbumId());
+            }
+        }, 200);
     }
 
     @Override
-    protected void onMetaChange() {
-        super.onMetaChange();
-        if (iTimerService == null) return;
-        try {
-            Track track = iTimerService.getCurrentTrack();
-            updateHeader(track);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        super.onServiceConnected(name, service);
+        PlayUtil.registerPlayObserver(iTimerService, playStateObserver);
+        updateHeader();
     }
 
     @Override
-    protected void onMetaPlay() {
-        super.onMetaPlay();
-        onMetaChange();
-    }
-
-    private void updateHeader(Track track) {
-        if (track == null) {
-            track = TrackLoader.loadRandomTrack(this);
-        }
-        headerTrack.setText(track.getTitle());
-        headerArtist.setText(track.getArtist());
-        ImageUtil.loadBitmap(headerImage, track.getAlbumId());
+    public void onServiceDisconnected(ComponentName name) {
+        PlayUtil.unRegisterPlayObserver(iTimerService, playStateObserver);
+        super.onServiceDisconnected(name);
     }
 
     @Override
@@ -244,9 +273,9 @@ public class MainActivity extends BaseActivity
                 drawerLayout.openDrawer(Gravity.LEFT);
             }
         } else if (id == R.id.menu_settings) {
-            NaviUtil.naviToSettingsActivity(this);
+            NavUtil.navToSettingsActivity(this);
         } else if (id == R.id.menu_search) {
-            NaviUtil.naviToSearchActivity(this);
+            NavUtil.navToSearchActivity(this);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -273,13 +302,13 @@ public class MainActivity extends BaseActivity
                 handler.post(naviRunnables.get(navigation));
                 break;
             case R.id.nav_settings:
-                NaviUtil.naviToSettingsActivity(this);
+                NavUtil.navToSettingsActivity(this);
                 break;
             case R.id.nav_about:
-                NaviUtil.naviToAbout(getSupportFragmentManager(), "ABOUT");
+                NavUtil.navToAbout(getSupportFragmentManager(), "ABOUT");
                 break;
             case R.id.nav_feedback:
-                NaviUtil.naviToFeedBack(this);
+                NavUtil.navToFeedBack(this);
                 break;
             default:
                 break;

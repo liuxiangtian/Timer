@@ -18,5 +18,7 @@ public class ConstantsUtil {
     public static final String DETAIL_PLAYLIST_ID = "DETAIL_PLAYLIST_ID";
     public static final String DETAIL_ALBUM_ID = "DETAIL_ALBUM_ID";
     public static final String DETAIL_ARTIST_ID = "DETAIL_ARTIST_ID";
-
+    public static final String DETAIL_PLAYLIST_NAME = "DETAIL_PLAYLIST_NAME";
+    public static final String DETAIL_ALBUM_NAME = "DETAIL_ALBUM_NAME";
+    public static final String DETAIL_ARTIST_NAME = "DETAIL_ARTIST_NAME";
 }

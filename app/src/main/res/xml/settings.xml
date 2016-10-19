@@ -4,9 +4,9 @@
     <PreferenceCategory android:title="选择播放样式">
 
         <Preference
-            android:key="Category_key"
-            android:summary="summary"
-            android:title="title" />
+            android:key="play_style"
+            android:summary="采用何种播放样式？"
+            android:title="播放样式" />
 
     </PreferenceCategory>
 

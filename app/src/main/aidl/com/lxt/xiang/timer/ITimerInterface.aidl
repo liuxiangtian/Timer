@@ -1,7 +1,7 @@
-// ITimerInterface.aidl
 package com.lxt.xiang.timer;
 
 import com.lxt.xiang.timer.model.Track;
+import com.lxt.xiang.timer.listener.PlayObserver;
 
 interface ITimerInterface {
 
@@ -19,4 +19,8 @@ interface ITimerInterface {
         void prev();
         void pause();
         void seek(in long position);
+
+    void registerPlayObserver(in PlayObserver playObserver);
+    void unRegisterPlayObserver(in PlayObserver playObserver);
+
 }

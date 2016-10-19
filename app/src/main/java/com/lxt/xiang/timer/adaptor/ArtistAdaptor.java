@@ -5,6 +5,7 @@ import android.support.v4.util.ArrayMap;
 import android.support.v4.util.Pair;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +15,7 @@ import android.widget.TextView;
 
 import com.lxt.xiang.timer.R;
 import com.lxt.xiang.timer.model.Artist;
-import com.lxt.xiang.timer.util.ImageUtil;
+import com.lxt.xiang.timer.util.BitmapUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,33 +44,38 @@ public class ArtistAdaptor extends RecyclerView.Adapter<ArtistAdaptor.VH> {
 
     @Override
     public void onBindViewHolder(final VH holder, int position) {
-        final Artist item = mArtists.get(position);
-        Palette.Swatch swatch = mCache.get(item.getId());
+        final Artist artist = mArtists.get(position);
+        Palette.Swatch swatch = mCache.get(artist.getId());
         if(swatch!=null){
-            holder.title.setTextColor(swatch.getTitleTextColor());
-            holder.content.setTextColor(swatch.getTitleTextColor());
-            holder.footerView.setBackgroundColor(swatch.getRgb());
-            ImageUtil.loadBitmapBtArtistId(holder.albumArt, item.getId());
-            holder.title.setText(item.getArtist());
-            holder.content.setText(item.getAlbumNum()+" albums | "+item.getTrackNum()+" tracks");
+            BitmapUtil.loadBitmapByArtistId(holder.albumArt, artist.getId());
+            updateHolder(holder, artist, swatch);
         } else {
-            ImageUtil.loadBitmapBtArtistId(holder.albumArt, item.getId(), new Palette.PaletteAsyncListener() {
+            BitmapUtil.loadBitmapByArtistId(holder.albumArt, artist.getId(), new Palette.PaletteAsyncListener() {
                 @Override
                 public void onGenerated(Palette palette) {
-                    Palette.Swatch swatch = palette.getVibrantSwatch();
-                    if(swatch!=null){
-                        int bgColor = swatch.getRgb();
-                        holder.footerView.setBackgroundColor(bgColor);
-                        int textColor = swatch.getTitleTextColor();
-                        holder.title.setTextColor(textColor);
-                        holder.content.setTextColor(textColor);
-                        holder.title.setText(item.getArtist());
-                        holder.content.setText(item.getAlbumNum()+" albums | "+item.getTrackNum()+" tracks");
-                        mCache.put(item.getId(), swatch);
+                    Palette.Swatch newSwatch = palette.getVibrantSwatch();
+                    if(newSwatch!=null){
+                        updateHolder(holder, artist, newSwatch);
+                        mCache.put(artist.getId(), newSwatch);
+                    } else {
+                        updateHolder(holder, artist);
                     }
                 }
             });
         }
+    }
+
+    private void updateHolder(VH holder, Artist artist) {
+        holder.title.setText(artist.getArtist());
+        holder.content.setText(artist.getAlbumNum()+" albums | "+artist.getTrackNum()+" tracks");
+    }
+
+    private void updateHolder(VH holder, Artist artist, Palette.Swatch swatch) {
+        holder.title.setTextColor(swatch.getTitleTextColor());
+        holder.content.setTextColor(swatch.getTitleTextColor());
+        holder.footerView.setBackgroundColor(swatch.getRgb());
+        holder.title.setText(artist.getArtist());
+        holder.content.setText(artist.getAlbumNum()+" albums | "+artist.getTrackNum()+" tracks");
     }
 
     @Override

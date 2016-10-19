@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.lxt.xiang.timer.model.Artist;
 
@@ -28,18 +29,16 @@ public class ArtistLoader {
     public static Cursor makeCursor(final Context context, final String sort) {
         return context.getContentResolver().query(
                 MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI,
-                PROJECTION,
-                null,
-                null, sort);
+                PROJECTION, "_id != 1", null,sort);
     }
 
     public static List<Artist> loadArtists(final Context context, final String sort) {
         Cursor cursor = makeCursor(context, sort);
-        return getArtistsFromCursor(cursor);
+        return loadArtistsFromCursor(cursor);
     }
 
     @NonNull
-    private static List<Artist> getArtistsFromCursor(Cursor cursor) {
+    private static List<Artist> loadArtistsFromCursor(Cursor cursor) {
         List<Artist> alba = new ArrayList<>();
         if (cursor != null && cursor.moveToFirst()) {
             do {
@@ -50,36 +49,39 @@ public class ArtistLoader {
                 alba.add(new Artist(id, artist, albumNum, trackNum));
             } while (cursor.moveToNext());
         }
-        if(cursor!=null){
-            cursor.close();
-            cursor=null;
+        closeCursor(cursor);
+        Log.i("main", "---------------------" );
+        for (Artist artist : alba) {
+            Log.i("main", artist.toString() );
         }
+        Log.i("main", "---------------------" );
         return alba;
     }
 
-    public static long loadAlbumIdByArtist(final Context context, final long artistId) {
+    public static long getAlbumIdByArtist(final Context context, final long artistId) {
         Cursor cursor =  context.getContentResolver().query(
                 MediaStore.Audio.Artists.Albums.getContentUri("external", artistId),
-                new String[]{"_id"},
-                null, null, null);
+                new String[]{"_id"}, null, null, null);
         long albumId = -1;
         if (cursor!=null && cursor.moveToFirst()){
             albumId = cursor.getLong(0);
         }
+        closeCursor(cursor);
+        return albumId;
+    }
+
+    private static void closeCursor(Cursor cursor) {
         if(cursor!=null){
             cursor.close();
             cursor=null;
         }
-        return albumId;
     }
-
 
     public static List<Artist> loadArtistsByName(final Context context, String query) {
         Cursor cursor = context.getContentResolver().query(
-                MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI,
-                PROJECTION,
-                "artist LIKE ?",
-                new String[]{"%"+query+"%"}, null);
-        return getArtistsFromCursor(cursor);
+                MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI, PROJECTION,
+                "artist LIKE ?", new String[]{"%"+query+"%"}, null);
+        return loadArtistsFromCursor(cursor);
     }
+
 }

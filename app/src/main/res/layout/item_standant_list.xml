@@ -24,7 +24,7 @@
         android:layout_marginRight="8dp"
         android:scaleType="center"
         app:materialIcon="music_circle"
-        app:materialIconColor="#fff"
+        app:materialIconColor="#f00"
         app:materialIconSize="36dp" />
 
     <TextView
