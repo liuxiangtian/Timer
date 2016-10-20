@@ -115,7 +115,7 @@ public class QueueFragment extends Fragment implements TrackAdaptor.OnItemClickL
         BaseActivity baseActivity = (BaseActivity) getActivity();
         try {
             Track track = baseActivity.iTimerService.getCurrentTrack();
-            int position = trackAdaptor.refreshTrack(track);
+            int position = trackAdaptor.refreshTrack(track,true);
             layoutManager.scrollToPosition(position);
         } catch (RemoteException e) {
             e.printStackTrace();

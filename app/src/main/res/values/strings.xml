@@ -16,4 +16,5 @@
     <string name="sort">Sort</string>
     <string name="album">ALBUM</string>
     <string name="artist">ARTIST</string>
+    <string name="quit">quit</string>
 </resources>

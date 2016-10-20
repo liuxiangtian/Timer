@@ -30,7 +30,7 @@ public class AlbumLoader {
     public static Cursor makeCursor(final Context context, final String sort) {
         return context.getContentResolver().query(
                 MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
-                PROJECTION, "album_art != null", null, sort);
+                PROJECTION, "_id != 1", null, sort);
     }
 
     public static List<Album> loadAlbums(final Context context, final String sort) {

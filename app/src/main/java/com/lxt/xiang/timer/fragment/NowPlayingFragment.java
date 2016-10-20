@@ -8,12 +8,15 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -22,6 +25,7 @@ import com.lxt.xiang.timer.ITimerInterface;
 import com.lxt.xiang.timer.R;
 import com.lxt.xiang.timer.activity.BaseActivity;
 import com.lxt.xiang.timer.adaptor.TrackAdaptor;
+import com.lxt.xiang.timer.listener.PlayObserver;
 import com.lxt.xiang.timer.model.Track;
 import com.lxt.xiang.timer.util.BitmapUtil;
 import com.lxt.xiang.timer.util.ConstantsUtil;
@@ -32,7 +36,7 @@ import net.steamcrafted.materialiconlib.MaterialIconView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class NowPlayingFragment extends Fragment {
+public class NowPlayingFragment extends Fragment implements TrackAdaptor.OnItemClickListener {
 
     @Bind(R.id.album_art)
     ImageView albumArt;
@@ -52,6 +56,8 @@ public class NowPlayingFragment extends Fragment {
     MaterialIconView previous;
     @Bind(R.id.playpausewrapper)
     View playpausewrapper;
+    @Bind(R.id.playpause)
+    Button playpause;
     @Bind(R.id.next)
     MaterialIconView next;
     @Bind(R.id.recycler_view)
@@ -64,19 +70,16 @@ public class NowPlayingFragment extends Fragment {
     private Runnable updateRunnable = new Runnable() {
         @Override
         public void run() {
-            BaseActivity baseActivity = (BaseActivity) getActivity();
-            if (baseActivity == null) {
-                return;
-            }
-            ITimerInterface iTimerInterface = baseActivity.iTimerService;
-            if (iTimerInterface == null) return;
+            if (!PlayUtil.checkActivityIsBind(getActivity())) return;
+            ITimerInterface iTimerInterface = PlayUtil.getITimerService(getActivity());
             try {
                 long position = iTimerInterface.getSeekPosition();
-                Track track = iTimerInterface.getCurrentTrack();
-                long duration = track.getDuration();
-                songProgress.setProgress((int) (position*ConstantsUtil.PROCESS_MAX/duration));
-                songElapsedTime.setText(PlayUtil.durationToString(position));
-                if(iTimerInterface.isPlaying()){
+                long duration = iTimerInterface.getDuration();
+                long realPosition = Math.min(Math.max(0, position), duration);
+                int newProgress = (int) (realPosition * ConstantsUtil.PROCESS_MAX / duration);
+                songProgress.setProgress(newProgress);
+                songElapsedTime.setText(PlayUtil.durationToString(realPosition));
+                if (iTimerInterface.isPlaying()) {
                     handler.postDelayed(updateRunnable, 1000);
                 }
             } catch (RemoteException e) {
@@ -92,6 +95,7 @@ public class NowPlayingFragment extends Fragment {
             PlayUtil.togglePlay(baseActivity);
         }
     };
+
     private View.OnClickListener playNextListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -99,6 +103,7 @@ public class NowPlayingFragment extends Fragment {
             PlayUtil.playNext(baseActivity);
         }
     };
+
     private View.OnClickListener playPrevListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -106,11 +111,14 @@ public class NowPlayingFragment extends Fragment {
             PlayUtil.playPrev(baseActivity);
         }
     };
+
     private SeekBar.OnSeekBarChangeListener seekListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             BaseActivity baseActivity = (BaseActivity) getActivity();
-            PlayUtil.seek(baseActivity, progress);
+            if (fromUser) {
+                PlayUtil.seek(baseActivity, progress);
+            }
         }
 
         @Override
@@ -121,6 +129,20 @@ public class NowPlayingFragment extends Fragment {
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
 
+        }
+    };
+    private Palette.PaletteAsyncListener palettListener = new Palette.PaletteAsyncListener() {
+        @Override
+        public void onGenerated(Palette palette) {
+            Palette.Swatch swatch = palette.getDominantSwatch();
+            if (swatch != null) {
+                int bgColor = swatch.getRgb();
+                int contrastColor = BitmapUtil.getContrastColor(bgColor);
+                songTitle.setTextColor(contrastColor);
+                songArtist.setTextColor(contrastColor);
+                songDuration.setTextColor(contrastColor);
+                songElapsedTime.setTextColor(contrastColor);
+            }
         }
     };
 
@@ -147,59 +169,81 @@ public class NowPlayingFragment extends Fragment {
         handler = new Handler();
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         trackAdaptor = new TrackAdaptor(null);
+        trackAdaptor.setOnItemClickListener(this);
         recyclerView.setAdapter(trackAdaptor);
 
         songProgress.setMax(ConstantsUtil.PROCESS_MAX);
-//        songProgress.setOnSeekBarChangeListener(seekListener);
+        songProgress.setOnSeekBarChangeListener(seekListener);
         playpausewrapper.setOnClickListener(togglePlayListener);
+        playpause.setOnClickListener(togglePlayListener);
+        shuffle.setOnClickListener(togglePlayListener);
         next.setOnClickListener(playNextListener);
         previous.setOnClickListener(playPrevListener);
-        BaseActivity baseActivity = (BaseActivity) getActivity();
-        if (baseActivity == null) {
-            return;
-        }
+
+        PlayUtil.registerPlayObserver(getActivity(), playObserver);
         update();
     }
 
     private void update() {
-        if(!PlayUtil.checkActivityIsBind(getActivity())) return;
+        if (!PlayUtil.checkActivityIsBind(getActivity())) return;
         ITimerInterface iTimerInterface = PlayUtil.getITimerService(getActivity());
         try {
             Track track = iTimerInterface.getCurrentTrack();
-            if (track==null) return;
+            if (track == null) return;
             songTitle.setText(track.getTitle());
             songArtist.setText(track.getArtist());
             songAlbum.setText(track.getAlbum());
-            BitmapUtil.loadBlurBitmap(albumArt, track.getAlbumId());
-            long duration = track.getDuration();
-            long seekPosition = iTimerInterface.getSeekPosition();
+            BitmapUtil.loadBlurBitmap(albumArt, track.getAlbumId(), palettListener);
+            long duration = iTimerInterface.getDuration();
             songDuration.setText(PlayUtil.durationToString(duration));
-            songElapsedTime.setText(PlayUtil.durationToString(seekPosition));
             trackAdaptor.replaceData(iTimerInterface.getQueues());
             handler.post(updateRunnable);
-            songProgress.setProgress((int) (seekPosition*ConstantsUtil.PROCESS_MAX/duration));
-            int position = iTimerInterface.getCurrentPosition();
-            trackAdaptor.notifyItem(position, true);
+            PlayUtil.probePlayState(getActivity(), trackAdaptor);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
     }
 
+
     @Override
-    public void onResume() {
-        super.onResume();
-        int flag = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-        getActivity().getWindow().getDecorView().setSystemUiVisibility(flag);
+    public void onStart() {
+        super.onStart();
+//        int flag = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+//        getActivity().getWindow().getDecorView().setSystemUiVisibility(flag);
+        getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+//        getActivity().getWindow().getDecorView().setSystemUiVisibility(0);
+        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        BaseActivity baseActivity = (BaseActivity) getActivity();
-        if (baseActivity == null) {
-            return;
-        }
+        PlayUtil.unRegisterPlayObserver(getActivity(), playObserver);
     }
 
+    private PlayObserver playObserver = new PlayObserver() {
+
+        @Override
+        public void onMetaPlay() {
+            update();
+        }
+
+        @Override
+        public void onMetaPause() {
+            super.onMetaPause();
+            handler.postDelayed(updateRunnable, 200);
+            PlayUtil.probePlayState(getActivity(), trackAdaptor);
+        }
+    };
+
+    @Override
+    public void onItemClick(Track item, int position, long[] ids) {
+        PlayUtil.playTracks((BaseActivity) getActivity(), ids,item.getId(), position);
+    }
 
 }

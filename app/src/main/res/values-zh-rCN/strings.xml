@@ -10,4 +10,5 @@
     <string name="feedback">反馈</string>
     <string name="track">TRACK</string>
     <string name="sort">排序</string>
+    <string name="quit">离开</string>
 </resources>

@@ -5,16 +5,22 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.v7.graphics.Palette;
 import android.support.v8.renderscript.RenderScript;
+import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 
+import com.lxt.xiang.timer.BaseApplication;
+import com.lxt.xiang.timer.R;
 import com.lxt.xiang.timer.listener.SimpleTarget;
 import com.lxt.xiang.timer.loader.ArtistLoader;
 import com.lxt.xiang.timer.loader.PlaylistLoader;
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayInputStream;
@@ -31,25 +37,16 @@ public class BitmapUtil {
         return ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), albumId);
     }
 
+    private static void postDelay(View view, Runnable runnable){
+        view.postDelayed(runnable, 50);
+    }
+
     public static void loadBitmap(final ImageView imageView, final long albumId) {
-        Uri uri = queryArtById(albumId);
-        Picasso.with(imageView.getContext()).load(uri)
-                .fit().centerCrop()
-                .into(imageView);
+        loadBitmapWithPalette(imageView, albumId, null);
     }
 
     public static void loadBitmap(final ImageView imageView, final long albumId, final Palette.PaletteAsyncListener listener) {
-        Uri uri = queryArtById(albumId);
-        Picasso.with(imageView.getContext()).load(uri)
-                .into(new SimpleTarget() {
-                    @Override
-                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                        imageView.setImageBitmap(bitmap);
-                        if (listener != null) {
-                            Palette.from(bitmap).generate(listener);
-                        }
-                    }
-                });
+        loadBitmapWithPalette(imageView, albumId, listener);
     }
 
     public static void loadBitmapByArtistId(final ImageView albumArt, final long artistId) {
@@ -59,7 +56,7 @@ public class BitmapUtil {
                 .subscribe(new Action1<Long>() {
                     @Override
                     public void call(Long albumId) {
-                        loadBitmap(albumArt, albumId);
+                        loadBitmapWithPalette(albumArt, albumId, null);
                     }
                 });
     }
@@ -71,66 +68,25 @@ public class BitmapUtil {
                 .subscribe(new Action1<Long>() {
                     @Override
                     public void call(Long albumId) {
-                        loadBitmap(albumArt, albumId, listener);
+                        loadBitmapWithPalette(albumArt, albumId, listener);
                     }
                 });
     }
 
-    public static void loadBitmapByPlaylist(final ImageView albumArt, final long id, final Palette.PaletteAsyncListener paletteAsyncListener) {
-        Observable.just(PlaylistLoader.getAlbumIdFromPlayList(albumArt.getContext(), id))
+    public static void loadBitmapByPlaylist(final ImageView albumArt, final long playlistId, final Palette.PaletteAsyncListener listener) {
+        Observable.just(PlaylistLoader.getAlbumIdFromPlayList(albumArt.getContext(), playlistId))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<Long>() {
                     @Override
                     public void call(Long albumId) {
-                        loadBitmap(albumArt, albumId, paletteAsyncListener);
+                        loadBitmapWithPalette(albumArt, albumId, listener);
                     }
                 });
     }
 
-    public static void loadBlurBitmap(final ImageView albumArt, long albumId) {
-        Uri uri = queryArtById(albumId);
-        Picasso.with(albumArt.getContext()).load(uri)
-                .into(new SimpleTarget() {
-                    @Override
-                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                        super.onBitmapLoaded(bitmap, from);
-                        Observable.just(createBlurBitmap(bitmap, albumArt.getContext(), 4))
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(new Action1<Drawable>() {
-                                    @Override
-                                    public void call(Drawable drawable) {
-                                        albumArt.setImageDrawable(drawable);
-                                    }
-                                });
-                    }
-                });
-    }
-
-
-    public static void loadBlurBitmap(final ImageView albumArt, long albumId, final Palette.PaletteAsyncListener paletteAsyncLister) {
-        Uri uri = queryArtById(albumId);
-        Picasso.with(albumArt.getContext()).load(uri)
-                .resize(albumArt.getWidth(), albumArt.getHeight())
-                .into(new SimpleTarget() {
-                    @Override
-                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                        super.onBitmapLoaded(bitmap, from);
-                        if (paletteAsyncLister != null) {
-                            Palette.from(bitmap).generate(paletteAsyncLister);
-                        }
-                        Observable.just(createBlurBitmap(bitmap, albumArt.getContext(), 4))
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(new Action1<Drawable>() {
-                                    @Override
-                                    public void call(Drawable drawable) {
-                                        albumArt.setImageDrawable(drawable);
-                                    }
-                                });
-                    }
-                });
+    public static void loadBlurBitmap(final ImageView albumArt, long albumId, final Palette.PaletteAsyncListener listener) {
+        loadBlurBitmapWithPalette(albumArt, albumId, listener);
     }
 
     public static Drawable createBlurBitmap(Bitmap bitmap, Context context, int inSampleSize) {
@@ -156,18 +112,6 @@ public class BitmapUtil {
         return new BitmapDrawable(context.getResources(), blurTemplate);
     }
 
-    public static void loadBlurBitmapByArtist(final ImageView albumArt, final long artistId, final Palette.PaletteAsyncListener paletteAsyncLister) {
-        Observable.just(ArtistLoader.getAlbumIdByArtist(albumArt.getContext(), artistId))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<Long>() {
-                    @Override
-                    public void call(Long albumId) {
-                        loadBlurBitmap(albumArt, albumId, paletteAsyncLister);
-                    }
-                });
-    }
-
     public static void loadBlurBitmapByPlaylist(final ImageView albumArt, long playlistId, final Palette.PaletteAsyncListener listener) {
         Observable.just(PlaylistLoader.getAlbumIdFromPlayList(albumArt.getContext(), playlistId))
                 .subscribeOn(Schedulers.io())
@@ -175,8 +119,79 @@ public class BitmapUtil {
                 .subscribe(new Action1<Long>() {
                     @Override
                     public void call(Long albumId) {
-                        loadBlurBitmap(albumArt, albumId, listener);
+                        loadBlurBitmapWithPalette(albumArt, albumId, listener);
                     }
                 });
+    }
+
+    public static int getContrastColor(int rgb) {
+        int red = 256 - Color.red(rgb);
+        int green = 256 - Color.green(rgb);
+        int blue = 256 - Color.blue(rgb);
+        return Color.rgb(red, green, blue);
+    }
+
+    public static int getDarkColor(int rgb) {
+        int red = Math.max(0, Color.red(rgb)-24);
+        int green = Math.max(0, Color.green(rgb)-24);
+        int blue = Math.max(0, Color.blue(rgb)-24);
+        return Color.rgb(red, green, blue);
+    }
+
+    private static void loadBitmapWithPalette(final ImageView imageView, final long albumId, final Palette.PaletteAsyncListener listener){
+        Uri uri = queryArtById(albumId);
+        int width = Math.max(240,  imageView.getWidth());
+        int height = Math.max(240,  imageView.getHeight());
+        Picasso.with(imageView.getContext()).load(uri)
+                .resize(width, height)
+                .into(new SimpleTarget() {
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                        Log.i("main", "onBitmapLoaded: " +albumId+" "+
+                                + imageView.getWidth() +" "+imageView.getHeight() +" "
+                                +bitmap.toString()+" "+bitmap.getWidth()+" "+bitmap.getHeight());
+                        imageView.setImageBitmap(bitmap);
+                        if (listener != null) {
+                            Palette.from(bitmap).generate(listener);
+                        }
+                    }
+
+                    @Override
+                    public void onBitmapFailed(Drawable errorDrawable) {
+                        Log.i("main", "onBitmapFailed: " +albumId+" "+
+                                + imageView.getWidth() +" "+imageView.getHeight() );
+                        super.onBitmapFailed(errorDrawable);
+                    }
+                });
+    }
+
+    private static void loadBlurBitmapWithPalette(final ImageView albumArt, final long albumId, final Palette.PaletteAsyncListener listener){
+        Uri uri = queryArtById(albumId);
+        Picasso.with(albumArt.getContext()).load(uri)
+                .resize(albumArt.getWidth(), albumArt.getHeight())
+                .memoryPolicy(MemoryPolicy.NO_CACHE)
+                .into(new SimpleTarget() {
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                        super.onBitmapLoaded(bitmap, from);
+                        if (listener != null) {
+                            Palette.from(bitmap).generate(listener);
+                        }
+                        Observable.just(createBlurBitmap(bitmap, albumArt.getContext(), 4))
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new Action1<Drawable>() {
+                                    @Override
+                                    public void call(Drawable drawable) {
+                                        albumArt.setImageDrawable(drawable);
+                                    }
+                                });
+                    }
+                });
+    }
+
+
+    public static Drawable getPlaceHolder() {
+            return BaseApplication.getINSTANCE().getResources().getDrawable(R.drawable.header_placeholder);
     }
 }

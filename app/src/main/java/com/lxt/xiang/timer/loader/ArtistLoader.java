@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.lxt.xiang.timer.model.Artist;
 
@@ -50,11 +49,6 @@ public class ArtistLoader {
             } while (cursor.moveToNext());
         }
         closeCursor(cursor);
-        Log.i("main", "---------------------" );
-        for (Artist artist : alba) {
-            Log.i("main", artist.toString() );
-        }
-        Log.i("main", "---------------------" );
         return alba;
     }
 

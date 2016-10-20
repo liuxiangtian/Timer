@@ -39,7 +39,6 @@ public class PlaylistItemFragment extends Fragment implements View.OnClickListen
     private int count;
     private int position;
     private String name;
-    private long albumId;
     private Palette.PaletteAsyncListener paletteListener = new Palette.PaletteAsyncListener() {
         @Override
         public void onGenerated(Palette palette) {
@@ -47,7 +46,8 @@ public class PlaylistItemFragment extends Fragment implements View.OnClickListen
             if (swatch == null) {
                 return;
             }
-            int textColor = swatch.getTitleTextColor();
+            int bgColor = swatch.getRgb();
+            int textColor = BitmapUtil.getContrastColor(bgColor);
             typeText.setTextColor(textColor);
             indexText.setTextColor(textColor);
             detailsText.setTextColor(textColor);

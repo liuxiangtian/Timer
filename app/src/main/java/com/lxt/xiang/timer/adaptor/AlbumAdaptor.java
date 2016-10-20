@@ -1,6 +1,7 @@
 package com.lxt.xiang.timer.adaptor;
 
 
+import android.graphics.drawable.Drawable;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.util.Pair;
 import android.support.v7.graphics.Palette;
@@ -29,7 +30,7 @@ public class AlbumAdaptor extends RecyclerView.Adapter<AlbumAdaptor.VH> {
     private OnItemClickListener mOnItemClickListener;
 
     public AlbumAdaptor(List<Album> items) {
-        if(items == null) items = new ArrayList<>();
+        if (items == null) items = new ArrayList<>();
         this.mAlbums = items;
     }
 
@@ -38,22 +39,25 @@ public class AlbumAdaptor extends RecyclerView.Adapter<AlbumAdaptor.VH> {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_standant_grid, parent, false);
         ButterKnife.bind(this, view);
-        return new VH(view);
+        VH holder = new VH(view);
+        return holder;
     }
 
     @Override
     public void onBindViewHolder(final VH holder, int position) {
         final Album album = mAlbums.get(position);
         Palette.Swatch swatch = mCache.get(album.getId());
-        if(swatch!=null){
-            BitmapUtil.loadBitmap(holder.albumArt, album.getId());
+        Drawable drawable = holder.itemView.getResources().getDrawable(R.drawable.header_placeholder);
+        holder.albumArt.setImageDrawable(drawable);
+        if (swatch != null) {
             updateItemHolder(holder, album, swatch);
+            BitmapUtil.loadBitmap(holder.albumArt, album.getId());
         } else {
             BitmapUtil.loadBitmap(holder.albumArt, album.getId(), new Palette.PaletteAsyncListener() {
                 @Override
                 public void onGenerated(Palette palette) {
                     Palette.Swatch newSwatch = palette.getVibrantSwatch();
-                    if(newSwatch!=null){
+                    if (newSwatch != null) {
                         updateItemHolder(holder, album, newSwatch);
                         mCache.put(album.getId(), newSwatch);
                     } else {
@@ -66,7 +70,7 @@ public class AlbumAdaptor extends RecyclerView.Adapter<AlbumAdaptor.VH> {
 
     private void updateItemHolder(VH holder, Album album) {
         holder.title.setText(album.getAlbum());
-        holder.content.setText(album.getArtist()+" | "+album.getTrackNum()+" tracks");
+        holder.content.setText(album.getArtist() + " | " + album.getTrackNum() + " tracks");
     }
 
     private void updateItemHolder(VH holder, Album album, Palette.Swatch swatch) {
@@ -74,7 +78,7 @@ public class AlbumAdaptor extends RecyclerView.Adapter<AlbumAdaptor.VH> {
         holder.content.setTextColor(swatch.getTitleTextColor());
         holder.footerView.setBackgroundColor(swatch.getRgb());
         holder.title.setText(album.getAlbum());
-        holder.content.setText(album.getArtist()+" | "+album.getTrackNum()+" tracks");
+        holder.content.setText(album.getArtist() + " | " + album.getTrackNum() + " tracks");
     }
 
     @Override
@@ -104,7 +108,8 @@ public class AlbumAdaptor extends RecyclerView.Adapter<AlbumAdaptor.VH> {
         LinearLayout footerView;
         @Bind(R.id.title)
         TextView title;
-        @Bind(R.id.content) TextView content;
+        @Bind(R.id.content)
+        TextView content;
 
         public VH(View itemView) {
             super(itemView);
@@ -116,7 +121,7 @@ public class AlbumAdaptor extends RecyclerView.Adapter<AlbumAdaptor.VH> {
         public void onClick(View v) {
             int position = getAdapterPosition();
             Album item = mAlbums.get(position);
-            Pair<View,String> pair = Pair.create((View)albumArt, "transition_album_art");
+            Pair<View, String> pair = Pair.create((View) albumArt, "transition_album_art");
             if (mOnItemClickListener != null) {
                 mOnItemClickListener.onItemClick(item, position, pair);
             }

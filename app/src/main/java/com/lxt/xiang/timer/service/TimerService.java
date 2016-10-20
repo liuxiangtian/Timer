@@ -11,7 +11,6 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import com.lxt.xiang.timer.ITimerInterface;
 import com.lxt.xiang.timer.listener.PlayObserver;
@@ -19,7 +18,6 @@ import com.lxt.xiang.timer.loader.TrackLoader;
 import com.lxt.xiang.timer.model.Track;
 import com.lxt.xiang.timer.provider.LastPlayStore;
 import com.lxt.xiang.timer.provider.PlayQueueStore;
-import com.lxt.xiang.timer.util.ConstantsUtil;
 import com.lxt.xiang.timer.util.PrefsUtil;
 
 import java.io.IOException;
@@ -30,7 +28,9 @@ import java.util.List;
 public class TimerService extends Service {
 
     private int currentQueuePosition = -1;
+    private long currentTrackId = -1;
     private List<Track> mQueues;
+    private boolean isMediaPlayerBeUsing;
 
     private TimerStub mTimerStub;
     private MediaPlayer mediaPlayer;
@@ -43,7 +43,7 @@ public class TimerService extends Service {
     private MediaPlayer.OnCompletionListener onCompletionListener = new MediaPlayer.OnCompletionListener() {
         @Override
         public void onCompletion(MediaPlayer mp) {
-            if(!isFirstCompletion){
+            if (!isFirstCompletion) {
                 mp.reset();
                 next();
             }
@@ -70,7 +70,7 @@ public class TimerService extends Service {
                 case AudioManager.AUDIOFOCUS_GAIN:
                     break;
                 case AudioManager.AUDIOFOCUS_LOSS:
-                    if(mediaPlayer.isPlaying()){
+                    if (mediaPlayer.isPlaying()) {
                         mediaPlayer.pause();
                     }
                     break;
@@ -84,7 +84,8 @@ public class TimerService extends Service {
         @Override
         public void onPrepared(MediaPlayer mp) {
             start();
-            isFirstCompletion = false;
+//            isFirstCompletion = false;
+            isMediaPlayerBeUsing = true;
         }
     };
 
@@ -106,16 +107,38 @@ public class TimerService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         Context context = getApplicationContext();
-        mQueues = PlayQueueStore.getInstance(context).queryTracks(context);
-        currentQueuePosition = PrefsUtil.getQueuePosition();
+        mQueues = ensureQueueNotNull(context);
+        currentTrackId = PrefsUtil.getLastTrackId();
+        currentQueuePosition = findPositionById(currentTrackId);
         return mTimerStub.asBinder();
+    }
+
+    private List<Track> ensureQueueNotNull(Context context) {
+        List<Track> tracks = PlayQueueStore.getInstance(context).queryTracks(context);
+        if (tracks == null) tracks = TrackLoader.loadTracks(this, TrackLoader.SORT_ALBUM);
+        return tracks;
+    }
+
+    private int findPositionById(long currentTrackId) {
+        if (currentTrackId == -1) return 0;
+        int ocunt = mQueues.size();
+        for (int i = 0; i < ocunt; i++) {
+            if (mQueues.get(i).getId() == currentTrackId) {
+                return i;
+            }
+        }
+        return 0;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
         Context context = getApplicationContext();
         PlayQueueStore.getInstance(context).insertItem(context, mQueues);
-        PrefsUtil.setQueuePosition(currentQueuePosition);
+        PrefsUtil.setLastTrackId(currentTrackId);
+        if (mediaPlayer != null) {
+            if (mediaPlayer.isPlaying()) mediaPlayer.stop();
+            mediaPlayer.release();
+        }
         return super.onUnbind(intent);
     }
 
@@ -141,7 +164,13 @@ public class TimerService extends Service {
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
         }
-        notifyMetaPlay();
+        notifyMetaPause();
+    }
+
+    private void notifyMetaPause() {
+        for (PlayObserver playObserver : playObservers) {
+            playObserver.onMetaPause();
+        }
     }
 
     private void prev() {
@@ -174,21 +203,30 @@ public class TimerService extends Service {
     private void start() {
         int result = audioManager.requestAudioFocus(onFocusListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
         if (result == AudioManager.AUDIOFOCUS_REQUEST_FAILED) return;
-        if (!mediaPlayer.isPlaying()) {
-            mediaPlayer.start();
-            notifyMetaPlay();
+        if (!mediaPlayer.isPlaying() ) {
+            if(isMediaPlayerBeUsing){
+                mediaPlayer.start();
+                notifyMetaPlay();
+            } else {
+                realPlay(currentTrackId);
+            }
         }
     }
 
     private void notifyMetaPlay() {
-        Log.i("main", "notifyMetaPlay: ");
         for (PlayObserver playObserver : playObservers) {
             playObserver.onMetaPlay();
         }
     }
 
     private long getSeekPosition() {
-        return mediaPlayer.getCurrentPosition();
+        int position = mediaPlayer.getCurrentPosition();
+        if (position < 0) {
+            position = 0;
+        } else if (position > mediaPlayer.getDuration()) {
+            position = mediaPlayer.getDuration();
+        }
+        return position;
     }
 
     private boolean isPlaying() {
@@ -204,14 +242,16 @@ public class TimerService extends Service {
                 mQueues.add(track);
             }
         }
-        currentQueuePosition = position;
         realPlay(id);
     }
 
     private void realPlay(long id) {
+        currentTrackId = id;
+        currentQueuePosition = findPositionById(currentTrackId);
         lastPlayStore.insertOrUpdateItem(this, id);
         Uri uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id);
         try {
+            if(mediaPlayer.isPlaying()) mediaPlayer.stop();
             mediaPlayer.reset();
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mediaPlayer.setWakeMode(this, PowerManager.PARTIAL_WAKE_LOCK);
@@ -220,8 +260,6 @@ public class TimerService extends Service {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Intent intent = new Intent(ConstantsUtil.ACTION_STATUS_PLAY);
-        sendBroadcast(intent);
     }
 
     private int getQueueSize() {
@@ -249,6 +287,21 @@ public class TimerService extends Service {
 
     private int getCurrentQueuePosition() {
         return currentQueuePosition;
+    }
+
+    private long getDuration() {
+        if (mediaPlayer != null) {
+            return mediaPlayer.getDuration();
+        }
+        return -1;
+    }
+
+    private void unRegisterPlayObserver(PlayObserver playObserver) {
+        playObservers.remove(playObserver);
+    }
+
+    private void registerPlayObserver(PlayObserver playObserver) {
+        playObservers.add(playObserver);
     }
 
     public class TimerStub extends ITimerInterface.Stub {
@@ -307,6 +360,13 @@ public class TimerService extends Service {
                 currentQueuePosition = getQueueSize() - 1;
             }
             return timerService.getQueues().get(currentQueuePosition);
+        }
+
+        @Override
+        public long getDuration() throws RemoteException {
+            TimerService timerService = weakReference.get();
+            if (timerService == null) return -1;
+            return timerService.getDuration();
         }
 
         @Override
@@ -378,14 +438,6 @@ public class TimerService extends Service {
             if (timerService == null) return;
             timerService.unRegisterPlayObserver(playObserver);
         }
-    }
-
-    private void unRegisterPlayObserver(PlayObserver playObserver) {
-        playObservers.remove(playObserver);
-    }
-
-    private void registerPlayObserver(PlayObserver playObserver) {
-        playObservers.add(playObserver);
     }
 
 }

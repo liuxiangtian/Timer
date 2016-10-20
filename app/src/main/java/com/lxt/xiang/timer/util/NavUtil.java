@@ -40,7 +40,7 @@ public class NavUtil {
 
     public static void navToDetailsActivity(final Activity activity, final Pair<View, String> pair, final Intent intent) {
         if (activity==null) return;
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP && PrefsUtil.getNeedTransition()==true){
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP && PrefsUtil.getNeedTransition() && pair!=null){
             ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(activity, pair);
             activity.startActivity(intent, options.toBundle());
         } else {

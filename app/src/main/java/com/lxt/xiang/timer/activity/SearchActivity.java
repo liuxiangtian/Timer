@@ -1,7 +1,7 @@
 package com.lxt.xiang.timer.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,6 +10,7 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.InputMethodManager;
 
 import com.lxt.xiang.timer.R;
 import com.lxt.xiang.timer.adaptor.SearchAdaptor;
@@ -19,7 +20,9 @@ import com.lxt.xiang.timer.loader.TrackLoader;
 import com.lxt.xiang.timer.model.Album;
 import com.lxt.xiang.timer.model.Artist;
 import com.lxt.xiang.timer.model.Track;
+import com.lxt.xiang.timer.util.ConstantsUtil;
 import com.lxt.xiang.timer.util.NavUtil;
+import com.lxt.xiang.timer.util.PlayUtil;
 
 import java.util.List;
 
@@ -73,6 +76,8 @@ public class SearchActivity extends BaseActivity implements SearchView.OnQueryTe
         List<Album> albums = AlbumLoader.loadAlbumsByName(this, query);
         List<Artist> artists = ArtistLoader.loadArtistsByName(this, query);
         searchAdaptor.replaceData(tracks, albums, artists);
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(recyclerView.getWindowToken(), 0);
         return true;
     }
 
@@ -84,16 +89,30 @@ public class SearchActivity extends BaseActivity implements SearchView.OnQueryTe
 
     @Override
     public void onItemClick(Track track) {
-        Snackbar.make(recyclerView,track.toString(),Snackbar.LENGTH_SHORT).show();
+        long[] ids = new long[1];
+        ids[0] = track.getId();
+        PlayUtil.playTracks(this, ids, ids[0], 0);
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra(MainActivity.NAVIGATION, MainActivity.NAVI_NOW_PLAYING);
+        startActivity(intent);
     }
 
     @Override
     public void onItemClick(Album album) {
-        Snackbar.make(recyclerView,album.toString(),Snackbar.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, DetailsActivity.class);
+        intent.putExtra(ConstantsUtil.DETAIL_TYPE, ConstantsUtil.DETAIL_TYPE_ALBUM);
+        intent.putExtra(ConstantsUtil.DETAIL_ALBUM_ID, album.getId());
+        intent.putExtra(ConstantsUtil.DETAIL_ALBUM_NAME, album.getAlbum());
+        NavUtil.navToDetailsActivity(this, null, intent);
     }
 
     @Override
     public void onItemClick(Artist artist) {
-        Snackbar.make(recyclerView,artist.toString(),Snackbar.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, DetailsActivity.class);
+        intent.putExtra(ConstantsUtil.DETAIL_TYPE, ConstantsUtil.DETAIL_TYPE_ARTIST);
+        intent.putExtra(ConstantsUtil.DETAIL_ARTIST_ID, artist.getId());
+        intent.putExtra(ConstantsUtil.DETAIL_ARTIST_NAME, artist.getArtist());
+        NavUtil.navToDetailsActivity(this, null, intent);
     }
+
 }

@@ -1,20 +1,33 @@
 package com.lxt.xiang.timer.activity;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.transition.Transition;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.LayoutAnimationController;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.lxt.xiang.timer.R;
 import com.lxt.xiang.timer.adaptor.TrackAdaptor;
 import com.lxt.xiang.timer.listener.PlayObserver;
+import com.lxt.xiang.timer.listener.SimpleTransitionListener;
 import com.lxt.xiang.timer.model.Track;
 import com.lxt.xiang.timer.util.BitmapUtil;
 import com.lxt.xiang.timer.util.ConstantsUtil;
@@ -26,7 +39,7 @@ import com.lxt.xiang.timer.view.DivideItemDecoration;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class DetailsActivity extends BaseActivity implements TrackAdaptor.OnItemClickListener {
+public class DetailsActivity extends BaseActivity implements TrackAdaptor.OnItemClickListener, View.OnClickListener {
 
     @Bind(R.id.album_art)
     ImageView albumArt;
@@ -38,6 +51,28 @@ public class DetailsActivity extends BaseActivity implements TrackAdaptor.OnItem
 
     private String type;
     private Intent intent;
+    private FloatingActionButton fab;
+
+    private SimpleTransitionListener enterTransitionListener = new SimpleTransitionListener() {
+
+        @Override
+        public void onTransitionStart(Transition transition) {
+            recyclerView.setEnabled(false);
+        }
+
+        @Override
+        public void onTransitionEnd(Transition transition) {
+            super.onTransitionEnd(transition);
+            recyclerView.setEnabled(true);
+            initViews();
+        }
+    };
+    private long playlistId;
+    private String playlistName;
+    private long albumId;
+    private String albumName;
+    private long artistId;
+    private String artistName;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,29 +96,24 @@ public class DetailsActivity extends BaseActivity implements TrackAdaptor.OnItem
         recyclerView.setAdapter(trackAdaptor);
         trackAdaptor.setOnItemClickListener(this);
         recyclerView.addItemDecoration(new DivideItemDecoration(1));
-//        LayoutAnimationController controller = AnimationUtils.loadLayoutAnimation(this, android.R.anim.slide_in_left);
-//        recyclerView.setLayoutAnimation(controller);
-        recyclerView.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                initViews();
-            }
-        }, 200);
+        Animation animation = new TranslateAnimation(TranslateAnimation.RELATIVE_TO_SELF,-1,
+                TranslateAnimation.RELATIVE_TO_SELF,0,
+                TranslateAnimation.RELATIVE_TO_SELF, -1,
+                TranslateAnimation.RELATIVE_TO_SELF,0);
+        Animation alpha  = new AlphaAnimation(0,1);
+        LayoutAnimationController controller = new LayoutAnimationController(alpha,3000);
+        recyclerView.setLayoutAnimation(controller);
+
+        setupBackground();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && PrefsUtil.getNeedTransition()) {
+            getWindow().getEnterTransition().addListener(enterTransitionListener);
+        } else {
+            initViews();
+        }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        PlayUtil.registerPlayObserver(this, playObserver);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        PlayUtil.unRegisterPlayObserver(this, playObserver);
-    }
-
-    private void initViews() {
+    private void setupBackground() {
         if (ConstantsUtil.DETAIL_TYPE_PLAYLIST.equals(type)) {
             initPlayList();
         } else if (ConstantsUtil.DETAIL_TYPE_ALBUM.equals(type)) {
@@ -93,42 +123,45 @@ public class DetailsActivity extends BaseActivity implements TrackAdaptor.OnItem
         }
     }
 
+    private void initViews() {
+        if (ConstantsUtil.DETAIL_TYPE_PLAYLIST.equals(type)) {
+            LoadUtil.loadTracksByPlaylist(this, playlistId, trackAdaptor);
+        } else if (ConstantsUtil.DETAIL_TYPE_ALBUM.equals(type)) {
+            LoadUtil.loadTracksByAlbum(this, albumId, trackAdaptor);
+        } else if (ConstantsUtil.DETAIL_TYPE_ARTIST.equals(type)) {
+            LoadUtil.loadTracksByArtist(this, artistId, trackAdaptor);
+        }
+        recyclerView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                PlayUtil.probePlayState(DetailsActivity.this, trackAdaptor);
+            }
+        }, 200);
+    }
+
     private void initArtist() {
         setupToolbar();
-        long artistId = intent.getLongExtra(ConstantsUtil.DETAIL_ARTIST_ID, -1);
-        String artistName = intent.getStringExtra(ConstantsUtil.DETAIL_ARTIST_NAME);
+        artistId = intent.getLongExtra(ConstantsUtil.DETAIL_ARTIST_ID, -1);
+        artistName = intent.getStringExtra(ConstantsUtil.DETAIL_ARTIST_NAME);
         collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         collapsingToolbar.setTitle(artistName);
-        LoadUtil.loadTracksByArtist(this, artistId, trackAdaptor);
-        BitmapUtil.loadBitmapByArtistId(albumArt, artistId, new Palette.PaletteAsyncListener() {
-            @Override
-            public void onGenerated(Palette palette) {
-                Palette.Swatch swatch = palette.getVibrantSwatch();
-                if (swatch != null) {
-                    int bgColor = swatch.getRgb();
-                    collapsingToolbar.setContentScrimColor(bgColor);
-                }
-            }
-        });
+        BitmapUtil.loadBitmapByArtistId(albumArt, artistId, paletteAsyncListener);
+        setToggleFab();
+    }
+
+    private void setToggleFab() {
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(this);
     }
 
     private void initAlbum() {
         setupToolbar();
-        long albumId = intent.getLongExtra(ConstantsUtil.DETAIL_ALBUM_ID, -1);
-        String albumName = intent.getStringExtra(ConstantsUtil.DETAIL_ALBUM_NAME);
+        albumId = intent.getLongExtra(ConstantsUtil.DETAIL_ALBUM_ID, -1);
+        albumName = intent.getStringExtra(ConstantsUtil.DETAIL_ALBUM_NAME);
         collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         collapsingToolbar.setTitle(albumName);
-        LoadUtil.loadTracksByAlbum(this, albumId, trackAdaptor);
-        BitmapUtil.loadBitmap(albumArt, albumId, new Palette.PaletteAsyncListener() {
-            @Override
-            public void onGenerated(Palette palette) {
-                Palette.Swatch swatch = palette.getVibrantSwatch();
-                if (swatch != null) {
-                    int bgColor = swatch.getRgb();
-                collapsingToolbar.setContentScrimColor(bgColor);
-                }
-            }
-        });
+        BitmapUtil.loadBitmap(albumArt, albumId, paletteAsyncListener);
+        setToggleFab();
     }
 
     private void setupToolbar() {
@@ -139,18 +172,23 @@ public class DetailsActivity extends BaseActivity implements TrackAdaptor.OnItem
     }
 
     private void initPlayList() {
-        long playlistId = intent.getLongExtra(ConstantsUtil.DETAIL_PLAYLIST_ID, -1);
-        String playlistName = intent.getStringExtra(ConstantsUtil.DETAIL_PLAYLIST_NAME);
+        playlistId = intent.getLongExtra(ConstantsUtil.DETAIL_PLAYLIST_ID, -1);
+        playlistName = intent.getStringExtra(ConstantsUtil.DETAIL_PLAYLIST_NAME);
         textTitle = (TextView) findViewById(R.id.text_title);
         textTitle.setText(playlistName);
-        LoadUtil.loadTracksByPlaylist(this, playlistId, trackAdaptor);
         BitmapUtil.loadBlurBitmapByPlaylist(albumArt, playlistId, new Palette.PaletteAsyncListener() {
             @Override
             public void onGenerated(Palette palette) {
                 Palette.Swatch swatch = palette.getDominantSwatch();
                 if (swatch != null) {
-                    int textColor = swatch.getTitleTextColor();
+                    int bgColor = swatch.getRgb();
+                    int textColor = BitmapUtil.getContrastColor(bgColor);
                     trackAdaptor.setTextColor(textColor);
+                    textTitle.setTextColor(textColor);
+                } else {
+                    int textColor = Color.BLACK;
+                    trackAdaptor.setTextColor(textColor);
+                    textTitle.setTextColor(textColor);
                 }
             }
         });
@@ -167,22 +205,50 @@ public class DetailsActivity extends BaseActivity implements TrackAdaptor.OnItem
     @Override
     public void onItemClick(Track item, int position, long[] ids) {
         PlayUtil.playTracks(this, ids, item.getId(), position);
-        trackAdaptor.notifyItem(position, true);
     }
 
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        super.onServiceConnected(name, service);
+        PlayUtil.registerPlayObserver(this, playObserver);
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+        PlayUtil.unRegisterPlayObserver(this, playObserver);
+        super.onServiceDisconnected(name);
+    }
 
     private PlayObserver playObserver = new PlayObserver() {
 
         @Override
         public void onMetaPlay() {
-            recyclerView.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    Track track = PlayUtil.getCurrentTrack(iTimerService);
-                    trackAdaptor.refreshTrack(track);
-                }
-            }, 200);
+            Log.i("main", "play-----------------: "  );
+            PlayUtil.probePlayState(DetailsActivity.this, trackAdaptor);
+        }
+
+        @Override
+        public void onMetaPause() {
+            Log.i("main", "play-----------------: "  );
+            PlayUtil.probePlayState(DetailsActivity.this, trackAdaptor);
         }
     };
 
+    Palette.PaletteAsyncListener paletteAsyncListener = new Palette.PaletteAsyncListener() {
+        @Override
+        public void onGenerated(Palette palette) {
+            Palette.Swatch swatch = palette.getVibrantSwatch();
+            if (swatch != null) {
+                int bgColor = swatch.getRgb();
+                int conctastColor = BitmapUtil.getDarkColor(bgColor);
+                collapsingToolbar.setContentScrimColor(bgColor);
+                collapsingToolbar.setStatusBarScrimColor(conctastColor);
+            }
+        }
+    };
+
+    @Override
+    public void onClick(View v) {
+        PlayUtil.togglePlay(DetailsActivity.this);
+    }
 }

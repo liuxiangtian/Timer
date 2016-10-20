@@ -8,8 +8,6 @@ import android.support.annotation.Nullable;
 
 import com.lxt.xiang.timer.loader.TrackLoader;
 
-import java.util.Random;
-
 public class LastPlayStore {
 
     private static String TABLE_NAME = "LastPlay_DB";
@@ -173,8 +171,6 @@ public class LastPlayStore {
                 new String[]{ID}, null, null, null, null, DATE+" DESC", null);
         long id = -1;
         if(cursor!=null && cursor.moveToFirst()){
-            Random random = new Random();
-            cursor.moveToPosition(random.nextInt(cursor.getCount()));
             id = cursor.getLong(0);
             closeCursor(cursor);
         }
@@ -187,8 +183,7 @@ public class LastPlayStore {
                 new String[]{ID}, null, null, null, null, PLAYCOUNT+" DESC", null);
         long id = -1;
         if(cursor!=null && cursor.moveToFirst()){
-            Random random = new Random();
-            cursor.moveToPosition(random.nextInt(cursor.getCount()));
+            cursor.moveToLast();
             id = cursor.getLong(0);
             closeCursor(cursor);
         }

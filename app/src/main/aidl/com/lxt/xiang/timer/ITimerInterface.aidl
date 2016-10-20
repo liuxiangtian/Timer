@@ -10,6 +10,7 @@ interface ITimerInterface {
     long[] getIds();
     int getQueueSize();
     Track getCurrentTrack();
+    long getDuration();
 
     void play(in long[] ids, long id, int position);
     boolean isPlaying();

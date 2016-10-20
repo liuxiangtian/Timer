@@ -92,12 +92,20 @@ public class TrackAdaptor extends RecyclerView.Adapter<TrackAdaptor.VH> {
         notifyDataSetChanged();
     }
 
-    public int refreshTrack(Track track) {
+    public int refreshTrack(Track track, boolean isPlaying) {
         if (track == null) {
             return 0;
         }
-        int position = mTracks.indexOf(track);
+        int position = -1;
+        int count = mTracks.size();
+        for (int i = 0; i < count ; i++) {
+            if(mTracks.get(i).getId()==track.getId()){
+                position = i;
+                break;
+            }
+        }
         if(position!=-1){
+            this.isPlaying = isPlaying;
             int oldPosition = currentPosition;
             currentPosition = position;
             notifyItemChanged(oldPosition);

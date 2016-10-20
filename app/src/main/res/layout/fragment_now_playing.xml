@@ -44,7 +44,6 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:maxLines="2"
-                    android:textColor="#ffffff"
                     android:textSize="25sp"/>
 
                 <TextView
@@ -54,7 +53,6 @@
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:paddingTop="3dp"
-                    android:textColor="#ffffff"
                     android:textSize="14sp"/>
 
                 <SeekBar
@@ -66,6 +64,7 @@
                     android:layout_marginLeft="6dp"
                     android:layout_marginRight="6dp"
                     android:maxHeight="2dp"
+
                     android:paddingTop="18dp"
                     android:progress="30"/>
 
@@ -73,7 +72,6 @@
                     android:id="@+id/song_album"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="#ffffff"
                     android:visibility="gone"/>
 
                 <RelativeLayout
@@ -85,16 +83,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentLeft="true"
-                        android:paddingLeft="25dp"
-                        android:textColor="#ffffff"/>
+                        android:paddingLeft="25dp"/>
 
                     <TextView
                         android:id="@+id/song_duration"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
-                        android:paddingRight="25dp"
-                        android:textColor="#ffffff"/>
+                        android:paddingRight="25dp"/>
 
                 </RelativeLayout>
 
@@ -115,7 +111,7 @@
                         android:paddingLeft="50dp"
                         android:scaleType="center"
                         app:materialIcon="skip_previous"
-                        app:materialIconColor="#f33"
+                        app:materialIconColor="#FF4081"
                         app:materialIconSize="35dp"/>
 
                     <FrameLayout
@@ -128,9 +124,9 @@
 
                         <Button
                             android:id="@+id/playpause"
-                            android:layout_width="23dp"
-                            android:layout_height="23dp"
-                            android:backgroundTint="#f00"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:backgroundTint="#FF4081"
                             android:layout_gravity="center"/>
 
                         <View
@@ -150,7 +146,7 @@
                         android:paddingRight="50dp"
                         android:scaleType="center"
                         app:materialIcon="skip_next"
-                        app:materialIconColor="#f00"
+                        app:materialIconColor="#FF4081"
                         app:materialIconSize="35dp"/>
                 </LinearLayout>
 
@@ -185,6 +181,7 @@
         android:layout_margin="16dp"
         android:clickable="true"
         android:scaleType="centerInside"
+        app:srcCompat="@android:drawable/ic_media_play"
         app:layout_anchor="@id/headerView"
         app:layout_anchorGravity="bottom|right|end"/>
 

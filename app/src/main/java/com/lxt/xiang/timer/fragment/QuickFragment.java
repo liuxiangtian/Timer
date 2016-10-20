@@ -1,12 +1,12 @@
 package com.lxt.xiang.timer.fragment;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.graphics.Palette;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -88,8 +88,9 @@ public class QuickFragment extends Fragment {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             BaseActivity baseActivity = (BaseActivity) getActivity();
-            PlayUtil.seek(baseActivity, progress);
-            Log.i("main", "onProgressChanged: " + progress);
+            if(fromUser){
+                PlayUtil.seek(baseActivity, progress);
+            }
         }
 
         @Override
@@ -128,8 +129,12 @@ public class QuickFragment extends Fragment {
                     public void onGenerated(Palette palette) {
                         Palette.Swatch swatch = palette.getDominantSwatch();
                         if (swatch != null) {
-                            titleText.setTextColor(swatch.getTitleTextColor());
-                            artistText.setTextColor(swatch.getTitleTextColor());
+                            int color = BitmapUtil.getContrastColor(swatch.getRgb());
+                            titleText.setTextColor(color);
+                            artistText.setTextColor(color);
+                        } else {
+                            titleText.setTextColor(Color.BLACK);
+                            artistText.setTextColor(Color.BLACK);
                         }
                     }
                 });
@@ -145,17 +150,12 @@ public class QuickFragment extends Fragment {
             if (!PlayUtil.checkActivityIsBind(getActivity())) return;
             ITimerInterface iTimerInterface = PlayUtil.getITimerService(getActivity());
             try {
-                Track track = iTimerInterface.getCurrentTrack();
-                if (track == null) return;
                 long position = iTimerInterface.getSeekPosition();
-                long duration = track.getDuration();
-                int newProgress = (int) (position * ConstantsUtil.PROCESS_MAX / duration);
-                if (newProgress > progressBar.getProgress()) {
-                    progressBar.setProgress(newProgress);
-                }
-                if (newProgress > progressBarFast.getProgress()) {
-                    progressBarFast.setProgress(newProgress);
-                }
+                long duration = iTimerInterface.getDuration();
+                long realPosition = Math.min(Math.max(0, position), duration);
+                int newProgress = (int) (realPosition * ConstantsUtil.PROCESS_MAX / duration);
+                progressBar.setProgress(newProgress);
+                progressBarFast.setProgress(newProgress);
                 if (iTimerInterface.isPlaying()) {
                     handler.postDelayed(updateRunnable, 1000);
                 }
@@ -169,6 +169,13 @@ public class QuickFragment extends Fragment {
 
         @Override
         public void onMetaPlay() {
+            handler.postDelayed(updateRunnable, 200);
+            handler.postDelayed(refreshViewRunnable, 200);
+        }
+
+        @Override
+        public void onMetaPause() {
+            super.onMetaPause();
             handler.postDelayed(updateRunnable, 200);
             handler.postDelayed(refreshViewRunnable, 200);
         }

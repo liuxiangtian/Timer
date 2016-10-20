@@ -1,7 +1,6 @@
 package com.lxt.xiang.timer.fragment;
 
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -34,29 +33,21 @@ public class TrackFragment extends Fragment implements TrackAdaptor.OnItemClickL
     private TrackAdaptor trackAdaptor;
     private String trackSort;
 
-
     private PlayObserver playStateObserver = new PlayObserver(){
 
         @Override
         public void onMetaPlay() {
-            BaseActivity baseActivity = (BaseActivity) getActivity();
-            try {
-                Track track = baseActivity.iTimerService.getCurrentTrack();
-                trackAdaptor.refreshTrack(track);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
+            PlayUtil.probePlayState(getActivity(), trackAdaptor);
         }
 
+        @Override
+        public void onMetaPause() {
+            PlayUtil.probePlayState(getActivity(), trackAdaptor);
+        }
     };
 
     public static TrackFragment newInstance() {
         return new TrackFragment();
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Nullable
@@ -78,6 +69,12 @@ public class TrackFragment extends Fragment implements TrackAdaptor.OnItemClickL
         recyclerView.setAdapter(trackAdaptor);
         recyclerView.addItemDecoration(new DivideItemDecoration(1));
         LoadUtil.loadTracks(getContext(), trackSort, trackAdaptor);
+        view.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                PlayUtil.probePlayState(getActivity(), trackAdaptor);
+            }
+        }, 200);
     }
 
     @Override
@@ -135,7 +132,7 @@ public class TrackFragment extends Fragment implements TrackAdaptor.OnItemClickL
     @Override
     public void onItemClick(Track item, int position, long[] ids) {
         BaseActivity baseActivity = (BaseActivity) getActivity();
-        PlayUtil.playTracks(baseActivity,ids, item.getId(), position);
+        PlayUtil.playTracks(baseActivity, ids, item.getId(), position);
     }
 
 }

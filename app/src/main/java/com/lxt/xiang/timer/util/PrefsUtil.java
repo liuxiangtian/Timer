@@ -99,4 +99,14 @@ public class PrefsUtil {
     public static boolean getNeedTransition() {
         return getSharedPreferences().getBoolean(KEY_NEED_TRANSITION, true);
     }
+
+    private static final String KEY_LASTT_RACK_ID = "KEY_LASTT_RACK_ID";
+
+    public static void setLastTrackId(long id) {
+        getEditor().putLong(KEY_LASTT_RACK_ID, id).apply();
+    }
+
+    public static long getLastTrackId() {
+        return getSharedPreferences().getLong(KEY_LASTT_RACK_ID, -1);
+    }
 }

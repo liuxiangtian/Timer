@@ -85,7 +85,7 @@ public class SearchAdaptor extends RecyclerView.Adapter<SearchAdaptor.VH> {
             ItemHolder itemHolder = (ItemHolder) holder;
             Album album = albums.get(position - 2);
             itemHolder.titleText.setText(album.getAlbum());
-            itemHolder.contentText.setText(album.getAlbumArt() + " - " + album.getTrackNum() + " tracks");
+            itemHolder.contentText.setText(album.getAlbum() + " - " + album.getTrackNum() + " tracks");
             BitmapUtil.loadBitmap(itemHolder.albumArt, album.getId());
         } else if (type == CONTENT_ARTIST) {
             ItemHolder itemHolder = (ItemHolder) holder;
@@ -155,7 +155,6 @@ public class SearchAdaptor extends RecyclerView.Adapter<SearchAdaptor.VH> {
         public TitleHolder(View itemView) {
             super(itemView);
             titleText = (TextView) itemView.findViewById(android.R.id.text1);
-
         }
     }
 
@@ -174,6 +173,7 @@ public class SearchAdaptor extends RecyclerView.Adapter<SearchAdaptor.VH> {
             super(itemView);
             ButterKnife.bind(this, itemView);
             icon.setVisibility(View.GONE);
+            itemView.setOnClickListener(this);
         }
 
         @Override

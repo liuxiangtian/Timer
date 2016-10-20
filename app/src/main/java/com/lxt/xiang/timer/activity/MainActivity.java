@@ -9,6 +9,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,7 +45,7 @@ public class MainActivity extends BaseActivity
     public static final String NAVI_PLAYLIST = "NAVI_PLAYLIST";
     public static final String NAVI_PLAY_QUEUE = "NAVI_PLAY_QUEUE";
     public static final String NAVI_NOW_PLAYING = "NAVI_NOW_PLAYING";
-    private static final String NAVIGATION = "NAVIGATION";
+    public static final String NAVIGATION = "NAVIGATION";
 
     @Bind(R.id.sliding_panel)
     SlidingUpPanelLayout slidingPanel;
@@ -144,7 +145,6 @@ public class MainActivity extends BaseActivity
             super.onMetaPlay();
             updateHeader();
         }
-
     };
 
     @Override
@@ -222,31 +222,37 @@ public class MainActivity extends BaseActivity
     }
 
     private void updateHeader() {
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
                 Track track = PlayUtil.getCurrentTrack(iTimerService);
                 if (track == null) {
                     track = TrackLoader.getRandomTrackFromCursor(MainActivity.this);
                 }
                 headerTrack.setText(track.getTitle());
                 headerArtist.setText(track.getArtist());
+                Log.i("main", "updateHeader: "  + track.getAlbumId()+" "+headerImage.getWidth()+" "+headerImage.getHeight());
                 BitmapUtil.loadBitmap(headerImage, track.getAlbumId());
-            }
-        }, 200);
     }
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         super.onServiceConnected(name, service);
         PlayUtil.registerPlayObserver(iTimerService, playStateObserver);
-        updateHeader();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                updateHeader();
+            }
+        });
     }
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
         PlayUtil.unRegisterPlayObserver(iTimerService, playStateObserver);
         super.onServiceDisconnected(name);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
     @Override
@@ -309,6 +315,9 @@ public class MainActivity extends BaseActivity
                 break;
             case R.id.nav_feedback:
                 NavUtil.navToFeedBack(this);
+                break;
+            case R.id.nav_quit:
+                finish();
                 break;
             default:
                 break;

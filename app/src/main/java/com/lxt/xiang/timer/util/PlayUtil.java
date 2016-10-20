@@ -3,10 +3,10 @@ package com.lxt.xiang.timer.util;
 
 import android.app.Activity;
 import android.os.RemoteException;
-import android.util.Log;
 
 import com.lxt.xiang.timer.ITimerInterface;
 import com.lxt.xiang.timer.activity.BaseActivity;
+import com.lxt.xiang.timer.adaptor.TrackAdaptor;
 import com.lxt.xiang.timer.listener.PlayObserver;
 import com.lxt.xiang.timer.model.Track;
 
@@ -17,12 +17,11 @@ import org.joda.time.Seconds;
 public class PlayUtil {
 
     public static void playTracks(final BaseActivity baseActivity, long[] ids, long id, int position) {
-        Log.i("main", "playTracks: " + id);
         if (baseActivity == null) return;
         ITimerInterface iTimerService = baseActivity.iTimerService;
         if (iTimerService == null) return;
         try {
-            iTimerService.play(ids,id,position);
+            iTimerService.play(ids, id, position);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -33,9 +32,9 @@ public class PlayUtil {
         ITimerInterface iTimerService = baseActivity.iTimerService;
         if (iTimerService == null) return;
         try {
-            if(iTimerService.isPlaying()){
+            if (iTimerService.isPlaying()) {
                 iTimerService.pause();
-            }else {
+            } else {
                 iTimerService.start();
             }
         } catch (RemoteException e) {
@@ -70,11 +69,8 @@ public class PlayUtil {
         ITimerInterface iTimerService = baseActivity.iTimerService;
         if (iTimerService == null) return;
         try {
-            Track track = iTimerService.getCurrentTrack();
-            if (track != null) {
-                long duration = track.getDuration();
-                iTimerService.seek(progress*duration/ConstantsUtil.PROCESS_MAX);
-            }
+            long duration = iTimerService.getDuration();
+            iTimerService.seek(progress * duration / ConstantsUtil.PROCESS_MAX);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -85,20 +81,20 @@ public class PlayUtil {
         Minutes minutes = d.toStandardMinutes();
         Seconds seconds = d.toStandardSeconds();
         int minute = minutes.getMinutes();
-        int second = seconds.getSeconds()%60;
+        int second = seconds.getSeconds() % 60;
         StringBuilder builder = new StringBuilder();
-        if(minute>=0 && minute<=9){
+        if (minute >= 0 && minute <= 9) {
             builder.append("0").append(minute);
-        } else if(minute>=10 && minute<=60){
+        } else if (minute >= 10 && minute <= 60) {
             builder.append(minute);
         }
         builder.append(":");
-        if(second>=0 && second<=9){
+        if (second >= 0 && second <= 9) {
             builder.append("0").append(second);
-        } else if(second>=10 && second<=60){
+        } else if (second >= 10 && second <= 60) {
             builder.append(second);
         }
-        return  builder.toString();
+        return builder.toString();
     }
 
     public static boolean checkActivityIsBind(Activity activity) {
@@ -113,9 +109,8 @@ public class PlayUtil {
         BaseActivity baseActivity = (BaseActivity) activity;
         return baseActivity.iTimerService;
     }
-
     public static void registerPlayObserver(ITimerInterface iTimerService, PlayObserver playStateObserver) {
-        if(iTimerService==null || playStateObserver==null) return;
+        if (iTimerService == null || playStateObserver == null) return;
         try {
             iTimerService.registerPlayObserver(playStateObserver);
         } catch (RemoteException e) {
@@ -125,20 +120,20 @@ public class PlayUtil {
 
     public static void registerPlayObserver(Activity activity, PlayObserver playStateObserver) {
         BaseActivity baseActivity = (BaseActivity) activity;
-        if(baseActivity==null) return;
+        if (baseActivity == null) return;
         ITimerInterface iTimerInterface = baseActivity.iTimerService;
         registerPlayObserver(iTimerInterface, playStateObserver);
     }
 
     public static void unRegisterPlayObserver(Activity activity, PlayObserver playStateObserver) {
         BaseActivity baseActivity = (BaseActivity) activity;
-        if(baseActivity==null) return;
+        if (baseActivity == null) return;
         ITimerInterface iTimerInterface = baseActivity.iTimerService;
         unRegisterPlayObserver(iTimerInterface, playStateObserver);
     }
 
     public static void unRegisterPlayObserver(ITimerInterface iTimerService, PlayObserver playStateObserver) {
-        if(iTimerService==null || playStateObserver==null) return;
+        if (iTimerService == null || playStateObserver == null) return;
         try {
             iTimerService.unRegisterPlayObserver(playStateObserver);
         } catch (RemoteException e) {
@@ -147,12 +142,24 @@ public class PlayUtil {
     }
 
     public static Track getCurrentTrack(ITimerInterface iTimerService) {
-        if(iTimerService==null) return null;
+        if (iTimerService == null) return null;
         try {
             return iTimerService.getCurrentTrack();
         } catch (RemoteException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public static void probePlayState(Activity activity, TrackAdaptor trackAdaptor) {
+        if(!checkActivityIsBind(activity)) return;
+        ITimerInterface iTimerService = getITimerService(activity);
+        try {
+            Track track = iTimerService.getCurrentTrack();
+            boolean isPlaying = iTimerService.isPlaying();
+            trackAdaptor.refreshTrack(track, isPlaying);
+        } catch (RemoteException e) {
+            e.printStackTrace();
         }
     }
 

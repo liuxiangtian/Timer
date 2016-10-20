@@ -1,0 +1,6 @@
+
+
+1.TrackFragment 等与服务通信有多种方式，此处采用远程观察者模式。
+2.采用post保证任务执行顺序, 重要
+3.Animation 如ScaleAnimation， 背后是操作Matrix()
+4. 图片的加载 handler。

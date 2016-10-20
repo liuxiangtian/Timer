@@ -6,7 +6,7 @@ import android.os.Parcelable;
 public class PlayObserver implements Parcelable {
 
     public void onMetaPlay(){}
-
+    public void onMetaPause(){}
 
     public PlayObserver() {
     }
