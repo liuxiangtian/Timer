@@ -75,6 +75,7 @@ public class QueueFragment extends Fragment implements TrackAdaptor.OnItemClickL
     public void onResume() {
         super.onResume();
         updateTracksAndPosition();
+        PlayUtil.probePlayState(getActivity(), trackAdaptor);
     }
 
     @Override
@@ -95,6 +96,13 @@ public class QueueFragment extends Fragment implements TrackAdaptor.OnItemClickL
         @Override
         public void onMetaPlay() {
             updateTracksAndPosition();
+            PlayUtil.probePlayState(getActivity(), trackAdaptor);
+        }
+
+        @Override
+        public void onMetaPause() {
+            super.onMetaPause();
+            PlayUtil.probePlayState(getActivity(), trackAdaptor);
         }
     };
 

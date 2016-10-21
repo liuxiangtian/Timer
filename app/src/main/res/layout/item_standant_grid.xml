@@ -8,6 +8,8 @@
     <com.lxt.xiang.timer.view.SquareImageView
         android:id="@+id/album_art"
         android:src="@drawable/header_placeholder"
+        android:minWidth="240dp"
+        android:minHeight="240dp"
         android:layout_width="match_parent" />
 
     <LinearLayout

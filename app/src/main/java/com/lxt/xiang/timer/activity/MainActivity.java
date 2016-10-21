@@ -9,11 +9,11 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -53,6 +53,8 @@ public class MainActivity extends BaseActivity
     DrawerLayout drawerLayout;
     @Bind(R.id.nav_view)
     NavigationView navView;
+    @Bind(R.id.fast_frame_layout)
+    FrameLayout fastFrameLayout;
 
     ImageView headerImage;
     TextView headerTrack;
@@ -70,7 +72,7 @@ public class MainActivity extends BaseActivity
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.main_frame_layout, MainFragment.newInstance())
                     .commit();
-            slidingPanel.setPanelHeight(56* destiny);
+            slidingPanel.setPanelHeight(56*destiny);
         }
     };
 
@@ -81,7 +83,7 @@ public class MainActivity extends BaseActivity
                     .replace(R.id.main_frame_layout, PlaylistFragment.newInstance())
                     .addToBackStack("PLAYLIST")
                     .commit();
-            slidingPanel.setPanelHeight(56* destiny);
+            slidingPanel.setPanelHeight(56*destiny);
         }
     };
 
@@ -92,7 +94,7 @@ public class MainActivity extends BaseActivity
                     .replace(R.id.main_frame_layout, QueueFragment.newInstance())
                     .addToBackStack("PLAYQUEUE")
                     .commit();
-            slidingPanel.setPanelHeight(56* destiny);
+            slidingPanel.setPanelHeight(56*destiny);
         }
     };
 
@@ -103,7 +105,7 @@ public class MainActivity extends BaseActivity
                     .replace(R.id.main_frame_layout, NowPlayingFragment.newInstance())
                     .addToBackStack("PLAYQUEUE")
                     .commit();
-            slidingPanel.setPanelHeight(0);
+            slidingPanel.setPanelHeight(0*destiny);
         }
     };
 
@@ -113,7 +115,6 @@ public class MainActivity extends BaseActivity
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fast_frame_layout, QuickFragment.newInstance())
                     .commit();
-            slidingPanel.setPanelHeight(56* destiny);
         }
     };
 
@@ -228,7 +229,6 @@ public class MainActivity extends BaseActivity
                 }
                 headerTrack.setText(track.getTitle());
                 headerArtist.setText(track.getArtist());
-                Log.i("main", "updateHeader: "  + track.getAlbumId()+" "+headerImage.getWidth()+" "+headerImage.getHeight());
                 BitmapUtil.loadBitmap(headerImage, track.getAlbumId());
     }
 

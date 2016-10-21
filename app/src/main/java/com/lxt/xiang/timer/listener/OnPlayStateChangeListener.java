@@ -6,4 +6,5 @@ public interface OnPlayStateChangeListener {
     void onMetaPlay();
     void onMetaPause();
     void onMetaStop();
+    void onPrepare();
 }

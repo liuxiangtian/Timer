@@ -14,7 +14,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.transition.Transition;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
@@ -182,7 +181,7 @@ public class DetailsActivity extends BaseActivity implements TrackAdaptor.OnItem
                 Palette.Swatch swatch = palette.getDominantSwatch();
                 if (swatch != null) {
                     int bgColor = swatch.getRgb();
-                    int textColor = BitmapUtil.getContrastColor(bgColor);
+                    int textColor = BitmapUtil.getContrastColor(bgColor) & 0xff000000;
                     trackAdaptor.setTextColor(textColor);
                     textTitle.setTextColor(textColor);
                 } else {
@@ -223,13 +222,11 @@ public class DetailsActivity extends BaseActivity implements TrackAdaptor.OnItem
 
         @Override
         public void onMetaPlay() {
-            Log.i("main", "play-----------------: "  );
             PlayUtil.probePlayState(DetailsActivity.this, trackAdaptor);
         }
 
         @Override
         public void onMetaPause() {
-            Log.i("main", "play-----------------: "  );
             PlayUtil.probePlayState(DetailsActivity.this, trackAdaptor);
         }
     };
@@ -241,8 +238,10 @@ public class DetailsActivity extends BaseActivity implements TrackAdaptor.OnItem
             if (swatch != null) {
                 int bgColor = swatch.getRgb();
                 int conctastColor = BitmapUtil.getDarkColor(bgColor);
+                int textColor = BitmapUtil.getContrastColor(bgColor) & 0xff000000;
                 collapsingToolbar.setContentScrimColor(bgColor);
                 collapsingToolbar.setStatusBarScrimColor(conctastColor);
+                trackAdaptor.setTextColor(textColor);
             }
         }
     };

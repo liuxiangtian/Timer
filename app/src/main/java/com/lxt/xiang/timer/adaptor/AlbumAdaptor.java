@@ -1,7 +1,6 @@
 package com.lxt.xiang.timer.adaptor;
 
 
-import android.graphics.drawable.Drawable;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.util.Pair;
 import android.support.v7.graphics.Palette;
@@ -46,39 +45,32 @@ public class AlbumAdaptor extends RecyclerView.Adapter<AlbumAdaptor.VH> {
     @Override
     public void onBindViewHolder(final VH holder, int position) {
         final Album album = mAlbums.get(position);
+        holder.title.setText(album.getAlbum());
+        holder.content.setText(album.getArtist() + " | " + album.getTrackNum() + " tracks");
+
         Palette.Swatch swatch = mCache.get(album.getId());
-        Drawable drawable = holder.itemView.getResources().getDrawable(R.drawable.header_placeholder);
-        holder.albumArt.setImageDrawable(drawable);
         if (swatch != null) {
-            updateItemHolder(holder, album, swatch);
             BitmapUtil.loadBitmap(holder.albumArt, album.getId());
+            updateItemHolder(holder, swatch.getRgb());
         } else {
             BitmapUtil.loadBitmap(holder.albumArt, album.getId(), new Palette.PaletteAsyncListener() {
                 @Override
                 public void onGenerated(Palette palette) {
                     Palette.Swatch newSwatch = palette.getVibrantSwatch();
                     if (newSwatch != null) {
-                        updateItemHolder(holder, album, newSwatch);
+                        updateItemHolder(holder, newSwatch.getRgb());
                         mCache.put(album.getId(), newSwatch);
-                    } else {
-                        updateItemHolder(holder, album);
                     }
                 }
             });
         }
     }
 
-    private void updateItemHolder(VH holder, Album album) {
-        holder.title.setText(album.getAlbum());
-        holder.content.setText(album.getArtist() + " | " + album.getTrackNum() + " tracks");
-    }
-
-    private void updateItemHolder(VH holder, Album album, Palette.Swatch swatch) {
-        holder.title.setTextColor(swatch.getTitleTextColor());
-        holder.content.setTextColor(swatch.getTitleTextColor());
-        holder.footerView.setBackgroundColor(swatch.getRgb());
-        holder.title.setText(album.getAlbum());
-        holder.content.setText(album.getArtist() + " | " + album.getTrackNum() + " tracks");
+    private void updateItemHolder(VH holder, int bgColor) {
+        int textColor = BitmapUtil.getContrastColor(bgColor) & 0xff000000;
+        holder.title.setTextColor(textColor);
+        holder.content.setTextColor(textColor);
+        holder.footerView.setBackgroundColor(bgColor);
     }
 
     @Override

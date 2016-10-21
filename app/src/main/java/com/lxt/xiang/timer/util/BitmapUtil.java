@@ -6,22 +6,16 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.v7.graphics.Palette;
 import android.support.v8.renderscript.RenderScript;
-import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
 
-import com.lxt.xiang.timer.BaseApplication;
 import com.lxt.xiang.timer.R;
-import com.lxt.xiang.timer.listener.SimpleTarget;
 import com.lxt.xiang.timer.loader.ArtistLoader;
 import com.lxt.xiang.timer.loader.PlaylistLoader;
-import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,10 +29,6 @@ public class BitmapUtil {
 
     public static Uri queryArtById(long albumId) {
         return ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), albumId);
-    }
-
-    private static void postDelay(View view, Runnable runnable){
-        view.postDelayed(runnable, 50);
     }
 
     public static void loadBitmap(final ImageView imageView, final long albumId) {
@@ -89,7 +79,7 @@ public class BitmapUtil {
         loadBlurBitmapWithPalette(albumArt, albumId, listener);
     }
 
-    public static Drawable createBlurBitmap(Bitmap bitmap, Context context, int inSampleSize) {
+    public static Bitmap createBlurBitmap(Bitmap bitmap, Context context, int inSampleSize) {
 
         RenderScript rs = RenderScript.create(context);
         final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -109,7 +99,7 @@ public class BitmapUtil {
         script.forEach(output);
         output.copyTo(blurTemplate);
 
-        return new BitmapDrawable(context.getResources(), blurTemplate);
+        return blurTemplate;
     }
 
     public static void loadBlurBitmapByPlaylist(final ImageView albumArt, long playlistId, final Palette.PaletteAsyncListener listener) {
@@ -140,58 +130,47 @@ public class BitmapUtil {
 
     private static void loadBitmapWithPalette(final ImageView imageView, final long albumId, final Palette.PaletteAsyncListener listener){
         Uri uri = queryArtById(albumId);
-        int width = Math.max(240,  imageView.getWidth());
-        int height = Math.max(240,  imageView.getHeight());
-        Picasso.with(imageView.getContext()).load(uri)
-                .resize(width, height)
-                .into(new SimpleTarget() {
+        Picasso.with(imageView.getContext()).load(uri).placeholder(R.drawable.header_placeholder)
+                .fit().centerCrop()
+                .transform(new Transformation() {
                     @Override
-                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                        Log.i("main", "onBitmapLoaded: " +albumId+" "+
-                                + imageView.getWidth() +" "+imageView.getHeight() +" "
-                                +bitmap.toString()+" "+bitmap.getWidth()+" "+bitmap.getHeight());
-                        imageView.setImageBitmap(bitmap);
-                        if (listener != null) {
-                            Palette.from(bitmap).generate(listener);
+                    public Bitmap transform(Bitmap source) {
+                        if(listener!=null){
+                            Palette.from(source).generate(listener);
                         }
+                        return source;
                     }
 
                     @Override
-                    public void onBitmapFailed(Drawable errorDrawable) {
-                        Log.i("main", "onBitmapFailed: " +albumId+" "+
-                                + imageView.getWidth() +" "+imageView.getHeight() );
-                        super.onBitmapFailed(errorDrawable);
+                    public String key() {
+                        return "Palette";
                     }
-                });
+                })
+                .into(imageView);
     }
 
     private static void loadBlurBitmapWithPalette(final ImageView albumArt, final long albumId, final Palette.PaletteAsyncListener listener){
         Uri uri = queryArtById(albumId);
-        Picasso.with(albumArt.getContext()).load(uri)
-                .resize(albumArt.getWidth(), albumArt.getHeight())
-                .memoryPolicy(MemoryPolicy.NO_CACHE)
-                .into(new SimpleTarget() {
+        Picasso.with(albumArt.getContext()).load(uri).placeholder(R.drawable.header_placeholder)
+                .fit().centerCrop()
+                .transform(new Transformation() {
                     @Override
-                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                        super.onBitmapLoaded(bitmap, from);
-                        if (listener != null) {
-                            Palette.from(bitmap).generate(listener);
+                    public Bitmap transform(Bitmap source) {
+                        if(listener!=null){
+                            Palette.from(source).generate(listener);
                         }
-                        Observable.just(createBlurBitmap(bitmap, albumArt.getContext(), 4))
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(new Action1<Drawable>() {
-                                    @Override
-                                    public void call(Drawable drawable) {
-                                        albumArt.setImageDrawable(drawable);
-                                    }
-                                });
+                        Bitmap result = createBlurBitmap(source, albumArt.getContext(), 4);
+                        source.recycle();
+                        source=null;
+                        return result;
                     }
-                });
+
+                    @Override
+                    public String key() {
+                        return "Palette";
+                    }
+                })
+                .into(albumArt);
     }
 
-
-    public static Drawable getPlaceHolder() {
-            return BaseApplication.getINSTANCE().getResources().getDrawable(R.drawable.header_placeholder);
-    }
 }

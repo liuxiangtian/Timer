@@ -208,15 +208,12 @@ public class NowPlayingFragment extends Fragment implements TrackAdaptor.OnItemC
     @Override
     public void onStart() {
         super.onStart();
-//        int flag = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-//        getActivity().getWindow().getDecorView().setSystemUiVisibility(flag);
         getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-//        getActivity().getWindow().getDecorView().setSystemUiVisibility(0);
         getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
