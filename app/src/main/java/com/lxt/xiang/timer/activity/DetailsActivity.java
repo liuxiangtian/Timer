@@ -47,11 +47,24 @@ public class DetailsActivity extends BaseActivity implements TrackAdaptor.OnItem
     TextView textTitle;
     private TrackAdaptor trackAdaptor;
     private CollapsingToolbarLayout collapsingToolbar;
-
+    Palette.PaletteAsyncListener paletteAsyncListener = new Palette.PaletteAsyncListener() {
+        @Override
+        public void onGenerated(Palette palette) {
+            int bgColor = palette.getDominantColor(Color.MAGENTA);
+            int darkColor = BitmapUtil.getDarkColor(bgColor);
+            int textColor = BitmapUtil.getContrastColor(bgColor);
+            collapsingToolbar.setContentScrimColor(bgColor);
+            collapsingToolbar.setStatusBarScrimColor(darkColor);
+        }
+    };
     private String type;
     private Intent intent;
     private FloatingActionButton fab;
-
+    private long playlistId;
+    private String playlistName;
+    private long albumId;
+    private String albumName;
+    private long artistId;
     private SimpleTransitionListener enterTransitionListener = new SimpleTransitionListener() {
 
         @Override
@@ -66,12 +79,19 @@ public class DetailsActivity extends BaseActivity implements TrackAdaptor.OnItem
             initViews();
         }
     };
-    private long playlistId;
-    private String playlistName;
-    private long albumId;
-    private String albumName;
-    private long artistId;
     private String artistName;
+    private PlayObserver playObserver = new PlayObserver() {
+
+        @Override
+        public void onMetaPlay() {
+            PlayUtil.probePlayState(DetailsActivity.this, trackAdaptor);
+        }
+
+        @Override
+        public void onMetaPause() {
+            PlayUtil.probePlayState(DetailsActivity.this, trackAdaptor);
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -95,12 +115,12 @@ public class DetailsActivity extends BaseActivity implements TrackAdaptor.OnItem
         recyclerView.setAdapter(trackAdaptor);
         trackAdaptor.setOnItemClickListener(this);
         recyclerView.addItemDecoration(new DivideItemDecoration(1));
-        Animation animation = new TranslateAnimation(TranslateAnimation.RELATIVE_TO_SELF,-1,
-                TranslateAnimation.RELATIVE_TO_SELF,0,
+        Animation animation = new TranslateAnimation(TranslateAnimation.RELATIVE_TO_SELF, -1,
+                TranslateAnimation.RELATIVE_TO_SELF, 0,
                 TranslateAnimation.RELATIVE_TO_SELF, -1,
-                TranslateAnimation.RELATIVE_TO_SELF,0);
-        Animation alpha  = new AlphaAnimation(0,1);
-        LayoutAnimationController controller = new LayoutAnimationController(alpha,3000);
+                TranslateAnimation.RELATIVE_TO_SELF, 0);
+        Animation alpha = new AlphaAnimation(0, 1);
+        LayoutAnimationController controller = new LayoutAnimationController(alpha, 3000);
         recyclerView.setLayoutAnimation(controller);
 
         setupBackground();
@@ -178,17 +198,12 @@ public class DetailsActivity extends BaseActivity implements TrackAdaptor.OnItem
         BitmapUtil.loadBlurBitmapByPlaylist(albumArt, playlistId, new Palette.PaletteAsyncListener() {
             @Override
             public void onGenerated(Palette palette) {
-                Palette.Swatch swatch = palette.getDominantSwatch();
-                if (swatch != null) {
-                    int bgColor = swatch.getRgb();
-                    int textColor = BitmapUtil.getContrastColor(bgColor) & 0xff000000;
-                    trackAdaptor.setTextColor(textColor);
-                    textTitle.setTextColor(textColor);
-                } else {
-                    int textColor = Color.BLACK;
-                    trackAdaptor.setTextColor(textColor);
-                    textTitle.setTextColor(textColor);
-                }
+
+                int bgColor = palette.getDominantColor(Color.MAGENTA);
+                int darkColor = BitmapUtil.getDarkColor(bgColor);
+                int textColor = BitmapUtil.getContrastColor(bgColor) | 0xff000000;
+                trackAdaptor.setTextColor(textColor);
+                textTitle.setTextColor(textColor);
             }
         });
     }
@@ -217,34 +232,6 @@ public class DetailsActivity extends BaseActivity implements TrackAdaptor.OnItem
         PlayUtil.unRegisterPlayObserver(this, playObserver);
         super.onServiceDisconnected(name);
     }
-
-    private PlayObserver playObserver = new PlayObserver() {
-
-        @Override
-        public void onMetaPlay() {
-            PlayUtil.probePlayState(DetailsActivity.this, trackAdaptor);
-        }
-
-        @Override
-        public void onMetaPause() {
-            PlayUtil.probePlayState(DetailsActivity.this, trackAdaptor);
-        }
-    };
-
-    Palette.PaletteAsyncListener paletteAsyncListener = new Palette.PaletteAsyncListener() {
-        @Override
-        public void onGenerated(Palette palette) {
-            Palette.Swatch swatch = palette.getVibrantSwatch();
-            if (swatch != null) {
-                int bgColor = swatch.getRgb();
-                int conctastColor = BitmapUtil.getDarkColor(bgColor);
-                int textColor = BitmapUtil.getContrastColor(bgColor) & 0xff000000;
-                collapsingToolbar.setContentScrimColor(bgColor);
-                collapsingToolbar.setStatusBarScrimColor(conctastColor);
-                trackAdaptor.setTextColor(textColor);
-            }
-        }
-    };
 
     @Override
     public void onClick(View v) {

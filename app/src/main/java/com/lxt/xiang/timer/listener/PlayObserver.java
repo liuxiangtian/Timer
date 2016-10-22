@@ -3,10 +3,16 @@ package com.lxt.xiang.timer.listener;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.lxt.xiang.timer.model.Track;
+
+import java.util.List;
+
 public class PlayObserver implements Parcelable {
 
     public void onMetaPlay(){}
     public void onMetaPause(){}
+    public void onMetaChange(Track track){}
+    public void onPrepare() {}
 
     public PlayObserver() {
     }
@@ -33,5 +39,9 @@ public class PlayObserver implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+    }
+
+    public void onQueueChange(List<Track> mQueues) {
+
     }
 }

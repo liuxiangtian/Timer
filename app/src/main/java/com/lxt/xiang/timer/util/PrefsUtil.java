@@ -102,11 +102,11 @@ public class PrefsUtil {
 
     private static final String KEY_LASTT_RACK_ID = "KEY_LASTT_RACK_ID";
 
-    public static void setLastTrackId(long id) {
+    public static void storeLastPlayTrackId(long id) {
         getEditor().putLong(KEY_LASTT_RACK_ID, id).apply();
     }
 
-    public static long getLastTrackId() {
+    public static long getLastPlayTrackId() {
         return getSharedPreferences().getLong(KEY_LASTT_RACK_ID, -1);
     }
 }

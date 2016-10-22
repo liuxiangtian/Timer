@@ -151,15 +151,17 @@ public class PlayUtil {
         }
     }
 
-    public static void probePlayState(Activity activity, TrackAdaptor trackAdaptor) {
-        if(!checkActivityIsBind(activity)) return;
+    public static int probePlayState(Activity activity, TrackAdaptor trackAdaptor) {
+        if(!checkActivityIsBind(activity)) return 0;
         ITimerInterface iTimerService = getITimerService(activity);
         try {
             Track track = iTimerService.getCurrentTrack();
             boolean isPlaying = iTimerService.isPlaying();
             trackAdaptor.refreshTrack(track, isPlaying);
+            int position = iTimerService.getCurrentPosition();
+            return Math.max(0, Math.min(trackAdaptor.getItemCount(), position));
         } catch (RemoteException e) {
-            e.printStackTrace();
+            return 0;
         }
     }
 

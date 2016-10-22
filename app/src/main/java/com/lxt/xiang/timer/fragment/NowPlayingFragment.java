@@ -1,5 +1,6 @@
 package com.lxt.xiang.timer.fragment;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.RemoteException;
@@ -79,6 +80,7 @@ public class NowPlayingFragment extends Fragment implements TrackAdaptor.OnItemC
                 int newProgress = (int) (realPosition * ConstantsUtil.PROCESS_MAX / duration);
                 songProgress.setProgress(newProgress);
                 songElapsedTime.setText(PlayUtil.durationToString(realPosition));
+                songDuration.setText(PlayUtil.durationToString(duration));
                 if (iTimerInterface.isPlaying()) {
                     handler.postDelayed(updateRunnable, 1000);
                 }
@@ -132,17 +134,15 @@ public class NowPlayingFragment extends Fragment implements TrackAdaptor.OnItemC
         }
     };
     private Palette.PaletteAsyncListener palettListener = new Palette.PaletteAsyncListener() {
+
         @Override
         public void onGenerated(Palette palette) {
-            Palette.Swatch swatch = palette.getDominantSwatch();
-            if (swatch != null) {
-                int bgColor = swatch.getRgb();
-                int contrastColor = BitmapUtil.getContrastColor(bgColor);
+            int bgColor = palette.getDominantColor(Color.MAGENTA);
+            int contrastColor = BitmapUtil.getContrastColor(bgColor) | 0xff000000;
                 songTitle.setTextColor(contrastColor);
                 songArtist.setTextColor(contrastColor);
                 songDuration.setTextColor(contrastColor);
                 songElapsedTime.setTextColor(contrastColor);
-            }
         }
     };
 
@@ -160,6 +160,7 @@ public class NowPlayingFragment extends Fragment implements TrackAdaptor.OnItemC
         activity.setSupportActionBar(toolbar);
         ActionBar ab = activity.getSupportActionBar();
         ab.setDisplayHomeAsUpEnabled(true);
+        toolbar.setTitle("");
         return root;
     }
 
@@ -181,29 +182,32 @@ public class NowPlayingFragment extends Fragment implements TrackAdaptor.OnItemC
         previous.setOnClickListener(playPrevListener);
 
         PlayUtil.registerPlayObserver(getActivity(), playObserver);
-        update();
+        handler.postDelayed(setupViewRunnable, 200);
     }
 
-    private void update() {
-        if (!PlayUtil.checkActivityIsBind(getActivity())) return;
-        ITimerInterface iTimerInterface = PlayUtil.getITimerService(getActivity());
-        try {
-            Track track = iTimerInterface.getCurrentTrack();
-            if (track == null) return;
-            songTitle.setText(track.getTitle());
-            songArtist.setText(track.getArtist());
-            songAlbum.setText(track.getAlbum());
-            BitmapUtil.loadBlurBitmap(albumArt, track.getAlbumId(), palettListener);
-            long duration = iTimerInterface.getDuration();
-            songDuration.setText(PlayUtil.durationToString(duration));
-            trackAdaptor.replaceData(iTimerInterface.getQueues());
-            handler.post(updateRunnable);
-            PlayUtil.probePlayState(getActivity(), trackAdaptor);
-        } catch (RemoteException e) {
-            e.printStackTrace();
+    private Runnable setupViewRunnable = new Runnable() {
+
+        @Override
+        public void run() {
+            if (!PlayUtil.checkActivityIsBind(getActivity())) return;
+            ITimerInterface iTimerInterface = PlayUtil.getITimerService(getActivity());
+            try {
+                Track track = iTimerInterface.getCurrentTrack();
+                if (track == null) return;
+                songTitle.setText(track.getTitle());
+                songArtist.setText(track.getArtist());
+                songAlbum.setText(track.getAlbum());
+                BitmapUtil.loadBlurBitmap(albumArt, track.getAlbumId(), palettListener);
+                long duration = iTimerInterface.getDuration();
+                songDuration.setText(PlayUtil.durationToString(duration));
+                trackAdaptor.replaceData(iTimerInterface.getQueues());
+                handler.post(updateRunnable);
+                PlayUtil.probePlayState(getActivity(), trackAdaptor);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
-    }
-
+    };
 
     @Override
     public void onStart() {
@@ -226,13 +230,18 @@ public class NowPlayingFragment extends Fragment implements TrackAdaptor.OnItemC
     private PlayObserver playObserver = new PlayObserver() {
 
         @Override
+        public void onMetaChange(Track track) {
+            handler.postDelayed(setupViewRunnable, 200);
+        }
+
+        @Override
         public void onMetaPlay() {
-            update();
+            handler.postDelayed(updateRunnable, 200);
+            PlayUtil.probePlayState(getActivity(), trackAdaptor);
         }
 
         @Override
         public void onMetaPause() {
-            super.onMetaPause();
             handler.postDelayed(updateRunnable, 200);
             PlayUtil.probePlayState(getActivity(), trackAdaptor);
         }

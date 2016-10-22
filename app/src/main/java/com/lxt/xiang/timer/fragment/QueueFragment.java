@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,13 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+
+import static android.support.v7.widget.helper.ItemTouchHelper.ACTION_STATE_DRAG;
+import static android.support.v7.widget.helper.ItemTouchHelper.ACTION_STATE_SWIPE;
+import static android.support.v7.widget.helper.ItemTouchHelper.DOWN;
+import static android.support.v7.widget.helper.ItemTouchHelper.LEFT;
+import static android.support.v7.widget.helper.ItemTouchHelper.RIGHT;
+import static android.support.v7.widget.helper.ItemTouchHelper.UP;
 
 public class QueueFragment extends Fragment implements TrackAdaptor.OnItemClickListener {
 
@@ -67,6 +75,7 @@ public class QueueFragment extends Fragment implements TrackAdaptor.OnItemClickL
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(trackAdaptor);
         recyclerView.addItemDecoration(new DivideItemDecoration(1));
+        itemTouchHelper.attachToRecyclerView(recyclerView);
         PlayUtil.registerPlayObserver(getActivity(), playStateObserver);
         updateTrackAndPosition();
     }
@@ -129,5 +138,26 @@ public class QueueFragment extends Fragment implements TrackAdaptor.OnItemClickL
             e.printStackTrace();
         }
     }
+
+    private ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
+        @Override
+        public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+            return makeFlag(ACTION_STATE_SWIPE, LEFT | RIGHT) | makeFlag(ACTION_STATE_DRAG, UP|DOWN);
+        }
+
+        @Override
+        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+            int from = viewHolder.getAdapterPosition();
+            int to = target.getAdapterPosition();
+            trackAdaptor.swap(from, to);
+            return true;
+        }
+
+        @Override
+        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+            int position = viewHolder.getAdapterPosition();
+            trackAdaptor.delete(position);
+        }
+    });
 
 }

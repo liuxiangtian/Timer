@@ -61,12 +61,6 @@ public class ArtistFragment extends Fragment implements ArtistAdaptor.OnItemClic
         recyclerView.setAdapter(artistAdaptor);
         artistAdaptor.setOnItemClickListener(this);
         LoadUtil.loadArtists(getContext(), artistSort, artistAdaptor);
-
-        view.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-            }
-        }, 200);
     }
 
     @Override

@@ -5,7 +5,11 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.net.Uri;
 import android.support.v7.graphics.Palette;
 import android.support.v8.renderscript.RenderScript;
@@ -32,11 +36,11 @@ public class BitmapUtil {
     }
 
     public static void loadBitmap(final ImageView imageView, final long albumId) {
-        loadBitmapWithPalette(imageView, albumId, null);
+        loadBitmapWithPalette(imageView, albumId, EQUAL, null);
     }
 
     public static void loadBitmap(final ImageView imageView, final long albumId, final Palette.PaletteAsyncListener listener) {
-        loadBitmapWithPalette(imageView, albumId, listener);
+        loadBitmapWithPalette(imageView, albumId, EQUAL, listener);
     }
 
     public static void loadBitmapByArtistId(final ImageView albumArt, final long artistId) {
@@ -46,7 +50,7 @@ public class BitmapUtil {
                 .subscribe(new Action1<Long>() {
                     @Override
                     public void call(Long albumId) {
-                        loadBitmapWithPalette(albumArt, albumId, null);
+                        loadBitmapWithPalette(albumArt, albumId, EQUAL, null);
                     }
                 });
     }
@@ -58,7 +62,7 @@ public class BitmapUtil {
                 .subscribe(new Action1<Long>() {
                     @Override
                     public void call(Long albumId) {
-                        loadBitmapWithPalette(albumArt, albumId, listener);
+                        loadBitmapWithPalette(albumArt, albumId, EQUAL, listener);
                     }
                 });
     }
@@ -70,7 +74,23 @@ public class BitmapUtil {
                 .subscribe(new Action1<Long>() {
                     @Override
                     public void call(Long albumId) {
-                        loadBitmapWithPalette(albumArt, albumId, listener);
+                        loadBitmapWithPalette(albumArt, albumId, new Transformation() {
+                            @Override
+                            public Bitmap transform(Bitmap source) {
+                                Bitmap result = Bitmap.createBitmap(source.getWidth(), source.getHeight(), Bitmap.Config.RGB_565);
+                                Canvas canvas = new Canvas(result);
+                                Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                                paint.setColorFilter(new PorterDuffColorFilter(0x44880088, PorterDuff.Mode.DARKEN));
+                                canvas.drawBitmap(source,0,0, paint);
+                                source.recycle();
+                                return result;
+                            }
+
+                            @Override
+                            public String key() {
+                                return "DARK";
+                            }
+                        }, listener);
                     }
                 });
     }
@@ -128,7 +148,7 @@ public class BitmapUtil {
         return Color.rgb(red, green, blue);
     }
 
-    private static void loadBitmapWithPalette(final ImageView imageView, final long albumId, final Palette.PaletteAsyncListener listener){
+    private static void loadBitmapWithPalette(final ImageView imageView, final long albumId, Transformation transformation, final Palette.PaletteAsyncListener listener){
         Uri uri = queryArtById(albumId);
         Picasso.with(imageView.getContext()).load(uri).placeholder(R.drawable.header_placeholder)
                 .fit().centerCrop()
@@ -146,6 +166,7 @@ public class BitmapUtil {
                         return "Palette";
                     }
                 })
+                .transform(transformation)
                 .into(imageView);
     }
 
@@ -172,5 +193,17 @@ public class BitmapUtil {
                 })
                 .into(albumArt);
     }
+
+    private static Transformation EQUAL = new Transformation() {
+        @Override
+        public Bitmap transform(Bitmap source) {
+            return source;
+        }
+
+        @Override
+        public String key() {
+            return "EQUAL";
+        }
+    };
 
 }

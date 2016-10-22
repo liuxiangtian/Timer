@@ -115,6 +115,24 @@ public class TrackAdaptor extends RecyclerView.Adapter<TrackAdaptor.VH> {
         return 0;
     }
 
+    public void delete(int position) {
+        mTracks.remove(position);
+        if(position==currentPosition){
+            currentPosition = -1;
+        }
+        notifyItemRemoved(position);
+    }
+
+    public void swap(int from, int to) {
+        if(from==to) return;
+            mTracks.add(from, mTracks.get(to));
+            Track track = mTracks.remove(from+1);
+            mTracks.add(to, track);
+            mTracks.remove(to+1);
+        if(from==currentPosition) currentPosition = to;
+        notifyItemMoved(from, to);
+    }
+
     public interface OnItemClickListener {
         void onItemClick(Track item, int position, long[] ids);
     }

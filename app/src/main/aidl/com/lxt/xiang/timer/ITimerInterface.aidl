@@ -5,6 +5,7 @@ import com.lxt.xiang.timer.listener.PlayObserver;
 
 interface ITimerInterface {
 
+    void init();
     int getCurrentPosition();
     List<Track> getQueues();
     long[] getIds();

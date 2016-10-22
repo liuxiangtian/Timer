@@ -16,6 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerInParent="true"
+            android:src="@drawable/header_placeholder"
             android:scaleType="centerCrop" />
 
         <LinearLayout
@@ -47,7 +48,7 @@
                 android:singleLine="true"
                 android:text=""
                 android:layout_marginTop="6dp"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="6dp"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:textSize="24sp" />
 
@@ -65,7 +66,7 @@
             android:layout_below="@+id/text_area"
             android:maxHeight="2dp"
             android:layout_marginTop="16dp"
-            android:progress="0" />
+            android:progress="30" />
 
         <net.steamcrafted.materialiconlib.MaterialIconView
             android:id="@+id/play_icon"
@@ -76,7 +77,7 @@
             android:scaleType="center"
             app:materialIcon="play"
             app:materialIconColor="#FF4081"
-            app:materialIconSize="36dp" />
+            app:materialIconSize="48dp" />
 
         <net.steamcrafted.materialiconlib.MaterialIconView
             android:id="@+id/next_icon"
@@ -88,7 +89,7 @@
             app:layout_marginRightPercent="10%"
             app:materialIcon="skip_next"
             app:materialIconColor="#FF4081"
-            app:materialIconSize="36dp" />
+            app:materialIconSize="48dp" />
 
         <net.steamcrafted.materialiconlib.MaterialIconView
             android:id="@+id/prev_icon"
@@ -100,7 +101,7 @@
             app:layout_marginLeftPercent="10%"
             app:materialIcon="skip_previous"
             app:materialIconColor="#FF4081"
-            app:materialIconSize="36dp" />
+            app:materialIconSize="48dp" />
 
     </android.support.percent.PercentRelativeLayout>
 
@@ -131,7 +132,7 @@
                 android:progressDrawable="@drawable/progress_bar"
                 android:layout_gravity="top"
                 android:maxHeight="3dp"
-                android:progress="0" />
+                android:progress="30" />
 
             <TextView
                 android:id="@+id/text_title_fast"

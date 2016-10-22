@@ -1,6 +1,7 @@
 package com.lxt.xiang.timer.fragment;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -42,11 +43,7 @@ public class PlaylistItemFragment extends Fragment implements View.OnClickListen
     private Palette.PaletteAsyncListener paletteListener = new Palette.PaletteAsyncListener() {
         @Override
         public void onGenerated(Palette palette) {
-            Palette.Swatch swatch = palette.getDominantSwatch();
-            if (swatch == null) {
-                return;
-            }
-            int bgColor = swatch.getRgb();
+            int bgColor = palette.getDominantColor(Color.WHITE);
             int textColor = BitmapUtil.getContrastColor(bgColor);
             typeText.setTextColor(textColor);
             indexText.setTextColor(textColor);

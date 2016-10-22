@@ -26,6 +26,8 @@ import com.lxt.xiang.timer.view.DivideItemDecoration;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
+import static com.lxt.xiang.timer.util.PlayUtil.probePlayState;
+
 public class TrackFragment extends Fragment implements TrackAdaptor.OnItemClickListener {
 
     @Bind(R.id.recycler_view)
@@ -36,15 +38,21 @@ public class TrackFragment extends Fragment implements TrackAdaptor.OnItemClickL
     private PlayObserver playStateObserver = new PlayObserver(){
 
         @Override
+        public void onMetaChange(Track track) {
+            PlayUtil.probePlayState(getActivity(), trackAdaptor);
+        }
+
+        @Override
         public void onMetaPlay() {
             PlayUtil.probePlayState(getActivity(), trackAdaptor);
         }
 
         @Override
         public void onMetaPause() {
-            PlayUtil.probePlayState(getActivity(), trackAdaptor);
+            probePlayState(getActivity(), trackAdaptor);
         }
     };
+    private RecyclerView.LayoutManager layoutManager;
 
     public static TrackFragment newInstance() {
         return new TrackFragment();
@@ -63,7 +71,8 @@ public class TrackFragment extends Fragment implements TrackAdaptor.OnItemClickL
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        layoutManager = new LinearLayoutManager(view.getContext());
+        recyclerView.setLayoutManager(layoutManager);
         trackAdaptor = new TrackAdaptor(null);
         trackAdaptor.setOnItemClickListener(this);
         recyclerView.setAdapter(trackAdaptor);
@@ -72,7 +81,8 @@ public class TrackFragment extends Fragment implements TrackAdaptor.OnItemClickL
         view.postDelayed(new Runnable() {
             @Override
             public void run() {
-                PlayUtil.probePlayState(getActivity(), trackAdaptor);
+                int position = PlayUtil.probePlayState(getActivity(), trackAdaptor);
+                layoutManager.scrollToPosition(position);
             }
         }, 200);
     }

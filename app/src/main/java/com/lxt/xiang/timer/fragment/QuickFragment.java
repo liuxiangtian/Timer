@@ -127,15 +127,10 @@ public class QuickFragment extends Fragment {
                 BitmapUtil.loadBlurBitmap(albumArt, track.getAlbumId(), new Palette.PaletteAsyncListener() {
                     @Override
                     public void onGenerated(Palette palette) {
-                        Palette.Swatch swatch = palette.getDominantSwatch();
-                        if (swatch != null) {
-                            int color = BitmapUtil.getContrastColor(swatch.getRgb());
-                            titleText.setTextColor(color);
-                            artistText.setTextColor(color);
-                        } else {
-                            titleText.setTextColor(Color.BLACK);
-                            artistText.setTextColor(Color.BLACK);
-                        }
+                        int bgColor = palette.getDominantColor(Color.WHITE);
+                        int textColor = BitmapUtil.getContrastColor(bgColor);
+                            titleText.setTextColor(textColor);
+                            artistText.setTextColor(textColor);
                     }
                 });
             } catch (RemoteException e) {
@@ -157,6 +152,13 @@ public class QuickFragment extends Fragment {
                 progressBar.setProgress(newProgress);
                 progressBarFast.setProgress(newProgress);
                 if (iTimerInterface.isPlaying()) {
+                    iconFast.setIcon(MaterialDrawableBuilder.IconValue.PAUSE);
+                    playIcon.setIcon(MaterialDrawableBuilder.IconValue.PAUSE);
+                } else {
+                    iconFast.setIcon(MaterialDrawableBuilder.IconValue.PLAY);
+                    playIcon.setIcon(MaterialDrawableBuilder.IconValue.PLAY);
+                }
+                if (iTimerInterface.isPlaying()) {
                     handler.postDelayed(updateRunnable, 1000);
                 }
             } catch (RemoteException e) {
@@ -168,15 +170,18 @@ public class QuickFragment extends Fragment {
     private PlayObserver playObserver = new PlayObserver() {
 
         @Override
+        public void onMetaChange(Track track) {
+            handler.postDelayed(refreshViewRunnable, 200);
+            handler.postDelayed(updateRunnable, 200);
+        }
+
+        @Override
         public void onMetaPlay() {
             handler.postDelayed(updateRunnable, 200);
-            handler.postDelayed(refreshViewRunnable, 200);
         }
 
         @Override
         public void onMetaPause() {
-            super.onMetaPause();
-            handler.postDelayed(updateRunnable, 200);
             handler.postDelayed(refreshViewRunnable, 200);
         }
     };

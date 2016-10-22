@@ -5,7 +5,6 @@ import android.support.v4.util.ArrayMap;
 import android.support.v4.util.Pair;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +44,8 @@ public class ArtistAdaptor extends RecyclerView.Adapter<ArtistAdaptor.VH> {
     @Override
     public void onBindViewHolder(final VH holder, int position) {
         final Artist artist = mArtists.get(position);
+        holder.title.setText(artist.getArtist());
+        holder.content.setText(artist.getAlbumNum()+" albums | "+artist.getTrackNum()+" tracks");
         Palette.Swatch swatch = mCache.get(artist.getId());
         if(swatch!=null){
             BitmapUtil.loadBitmapByArtistId(holder.albumArt, artist.getId());
@@ -57,25 +58,16 @@ public class ArtistAdaptor extends RecyclerView.Adapter<ArtistAdaptor.VH> {
                     if(newSwatch!=null){
                         updateHolder(holder, artist, newSwatch);
                         mCache.put(artist.getId(), newSwatch);
-                    } else {
-                        updateHolder(holder, artist);
                     }
                 }
             });
         }
     }
 
-    private void updateHolder(VH holder, Artist artist) {
-        holder.title.setText(artist.getArtist());
-        holder.content.setText(artist.getAlbumNum()+" albums | "+artist.getTrackNum()+" tracks");
-    }
-
     private void updateHolder(VH holder, Artist artist, Palette.Swatch swatch) {
         holder.title.setTextColor(swatch.getTitleTextColor());
         holder.content.setTextColor(swatch.getTitleTextColor());
         holder.footerView.setBackgroundColor(swatch.getRgb());
-        holder.title.setText(artist.getArtist());
-        holder.content.setText(artist.getAlbumNum()+" albums | "+artist.getTrackNum()+" tracks");
     }
 
     @Override

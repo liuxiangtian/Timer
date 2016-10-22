@@ -117,7 +117,7 @@ public class MainFragment extends Fragment {
         }
 
         public void addFragmentWithKey(final String key, final Fragment f) {
-            mPairs.add(new Pair<String, Fragment>(key, f));
+            mPairs.add(new Pair<>(key, f));
         }
     }
 

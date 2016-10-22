@@ -15,7 +15,7 @@
         <FrameLayout
             android:id="@+id/headerView"
             android:layout_width="match_parent"
-            app:layout_heightPercent="50%">
+            app:layout_heightPercent="55%">
 
             <ImageView
                 android:id="@+id/album_art"
@@ -42,18 +42,22 @@
                     android:id="@+id/song_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:layout_gravity="center_horizontal"
                     android:ellipsize="end"
-                    android:maxLines="2"
-                    android:textSize="25sp"/>
+                    android:maxLines="1"
+                    android:textSize="36sp"/>
 
                 <TextView
                     android:id="@+id/song_artist"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:layout_gravity="center_horizontal"
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:paddingTop="3dp"
-                    android:textSize="14sp"/>
+                    android:textSize="24sp"/>
 
                 <SeekBar
                     android:id="@+id/song_progress"
@@ -64,7 +68,6 @@
                     android:layout_marginLeft="6dp"
                     android:layout_marginRight="6dp"
                     android:maxHeight="2dp"
-
                     android:paddingTop="18dp"
                     android:progress="30"/>
 
@@ -83,12 +86,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentLeft="true"
+                        android:singleLine="true"
                         android:paddingLeft="25dp"/>
 
                     <TextView
                         android:id="@+id/song_duration"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:singleLine="true"
                         android:layout_alignParentRight="true"
                         android:paddingRight="25dp"/>
 
@@ -112,7 +117,7 @@
                         android:scaleType="center"
                         app:materialIcon="skip_previous"
                         app:materialIconColor="#FF4081"
-                        app:materialIconSize="35dp"/>
+                        app:materialIconSize="48dp"/>
 
                     <FrameLayout
                         android:layout_width="50dp"
@@ -147,7 +152,7 @@
                         android:scaleType="center"
                         app:materialIcon="skip_next"
                         app:materialIconColor="#FF4081"
-                        app:materialIconSize="35dp"/>
+                        app:materialIconSize="48dp"/>
                 </LinearLayout>
 
             </LinearLayout>

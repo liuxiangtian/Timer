@@ -63,12 +63,6 @@ public class AlbumFragment extends Fragment implements AlbumAdaptor.OnItemClickL
         albumAdaptor.setOnItemClickListener(this);
         recyclerView.setAdapter(albumAdaptor);
         LoadUtil.loadAlbums(getContext(), albumSort, albumAdaptor);
-//        recyclerView.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//            }
-//        }, 200);
     }
 
     @Override
