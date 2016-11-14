@@ -35,7 +35,20 @@ public class TrackLoader {
             MediaStore.Audio.Media.YEAR
     };
 
-    private static final String SELECTION = " is_music = 1 and duration <> 0 ";
+    private static final String[] PROJECTION_MEMBER = new String[]{
+            MediaStore.Audio.Playlists.Members.AUDIO_ID,
+            MediaStore.Audio.Media.DATE_ADDED,
+            MediaStore.Audio.Media.TITLE,
+            MediaStore.Audio.Media.DURATION,
+            MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media.ARTIST_ID,
+            MediaStore.Audio.Media.TRACK,
+            MediaStore.Audio.Media.ALBUM,
+            MediaStore.Audio.Media.ALBUM_ID,
+            MediaStore.Audio.Media.YEAR
+    };
+
+    private static final String SELECTION = " is_music = 1 and duration <> 0 and album <> 0 ";
 
     public static Cursor makeCursor(Context context, String selection,
                                     String[] selectionArgs, String sort) {
@@ -125,7 +138,7 @@ public class TrackLoader {
         } else {
             cursor = context.getContentResolver().query(
                     MediaStore.Audio.Playlists.Members.getContentUri("external", playlistId),
-                    PROJECTION, SELECTION, null, null, null);
+                    PROJECTION_MEMBER, SELECTION, null, null, null);
         }
         return cursor;
     }

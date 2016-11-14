@@ -52,7 +52,6 @@ public class DetailsActivity extends BaseActivity implements TrackAdaptor.OnItem
         public void onGenerated(Palette palette) {
             int bgColor = palette.getDominantColor(Color.MAGENTA);
             int darkColor = BitmapUtil.getDarkColor(bgColor);
-            int textColor = BitmapUtil.getContrastColor(bgColor);
             collapsingToolbar.setContentScrimColor(bgColor);
             collapsingToolbar.setStatusBarScrimColor(darkColor);
         }
@@ -65,6 +64,7 @@ public class DetailsActivity extends BaseActivity implements TrackAdaptor.OnItem
     private long albumId;
     private String albumName;
     private long artistId;
+
     private SimpleTransitionListener enterTransitionListener = new SimpleTransitionListener() {
 
         @Override

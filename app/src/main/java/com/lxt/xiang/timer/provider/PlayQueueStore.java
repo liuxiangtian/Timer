@@ -76,13 +76,6 @@ public class PlayQueueStore {
         db.execSQL(CREAT_TABLE);
     }
 
-    public Cursor queryIds(final Context context, final long id) {
-        final SQLiteDatabase database = TimerDB.getInstance(context).getReadableDatabase();
-        return database.query(TABLE_NAME,
-                null, ID + " = ?", new String[]{String.valueOf(id)},
-                null, null, null, "1");
-    }
-
     public List<Track> queryTracks(final Context context) {
         final SQLiteDatabase database = TimerDB.getInstance(context).getReadableDatabase();
         Cursor cursor = database.query(TABLE_NAME, null, null,

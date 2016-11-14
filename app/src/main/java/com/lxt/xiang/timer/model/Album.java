@@ -30,7 +30,7 @@ public class Album {
 
     @Override
     public String toString() {
-        return id+" "+album+" "+artist+" "+trackNum+" "+albumArt;
+        return id+" "+album+" "+artist+" "+trackNum;
     }
 
     public long getId() {

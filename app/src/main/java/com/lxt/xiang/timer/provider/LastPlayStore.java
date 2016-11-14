@@ -183,7 +183,9 @@ public class LastPlayStore {
                 new String[]{ID}, null, null, null, null, PLAYCOUNT+" DESC", null);
         long id = -1;
         if(cursor!=null && cursor.moveToFirst()){
-            cursor.moveToLast();
+//            if(cursor.getCount()>1){
+//                cursor.moveToNext();
+//            }
             id = cursor.getLong(0);
             closeCursor(cursor);
         }

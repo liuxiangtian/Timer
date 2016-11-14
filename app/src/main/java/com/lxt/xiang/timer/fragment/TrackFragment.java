@@ -82,7 +82,7 @@ public class TrackFragment extends Fragment implements TrackAdaptor.OnItemClickL
             @Override
             public void run() {
                 int position = PlayUtil.probePlayState(getActivity(), trackAdaptor);
-                layoutManager.scrollToPosition(position);
+//                layoutManager.scrollToPosition(position);
             }
         }, 200);
     }

@@ -19,6 +19,7 @@ import com.lxt.xiang.timer.R;
 import com.lxt.xiang.timer.loader.ArtistLoader;
 import com.lxt.xiang.timer.loader.PlaylistLoader;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Transformation;
 
 import java.io.ByteArrayInputStream;
@@ -36,11 +37,11 @@ public class BitmapUtil {
     }
 
     public static void loadBitmap(final ImageView imageView, final long albumId) {
-        loadBitmapWithPalette(imageView, albumId, EQUAL, null);
+        loadBitmapWithPalette(imageView, albumId, null, null);
     }
 
     public static void loadBitmap(final ImageView imageView, final long albumId, final Palette.PaletteAsyncListener listener) {
-        loadBitmapWithPalette(imageView, albumId, EQUAL, listener);
+        loadBitmapWithPalette(imageView, albumId, null, listener);
     }
 
     public static void loadBitmapByArtistId(final ImageView albumArt, final long artistId) {
@@ -149,8 +150,9 @@ public class BitmapUtil {
     }
 
     private static void loadBitmapWithPalette(final ImageView imageView, final long albumId, Transformation transformation, final Palette.PaletteAsyncListener listener){
+//        Uri uri = queryArtById(20);
         Uri uri = queryArtById(albumId);
-        Picasso.with(imageView.getContext()).load(uri).placeholder(R.drawable.header_placeholder)
+        RequestCreator requestCreator = Picasso.with(imageView.getContext()).load(uri).placeholder(R.drawable.header_placeholder)
                 .fit().centerCrop()
                 .transform(new Transformation() {
                     @Override
@@ -165,9 +167,11 @@ public class BitmapUtil {
                     public String key() {
                         return "Palette";
                     }
-                })
-                .transform(transformation)
-                .into(imageView);
+                });
+        if(transformation!=null){
+            requestCreator = requestCreator.transform(transformation);
+        }
+        requestCreator.into(imageView);
     }
 
     private static void loadBlurBitmapWithPalette(final ImageView albumArt, final long albumId, final Palette.PaletteAsyncListener listener){

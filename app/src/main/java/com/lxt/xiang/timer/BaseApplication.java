@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.Context;
 import android.support.multidex.MultiDex;
 
+import com.squareup.picasso.Picasso;
+
 
 public class BaseApplication extends Application {
 
@@ -13,6 +15,7 @@ public class BaseApplication extends Application {
     public void onCreate() {
         super.onCreate();
         INSTANCE = this;
+        Picasso.with(this).setLoggingEnabled(true);
     }
 
     @Override

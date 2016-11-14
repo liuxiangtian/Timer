@@ -2,7 +2,6 @@ package com.lxt.xiang.timer.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -27,9 +26,6 @@ import butterknife.ButterKnife;
 
 public class MainFragment extends Fragment {
 
-    private static final CharSequence TITLE = "Timer";
-    @Bind(R.id.collapsing_toolbar)
-    CollapsingToolbarLayout collapsingToolbar;
     @Bind(R.id.tabs)
     TabLayout tabs;
     @Bind(R.id.viewpager)
@@ -65,6 +61,7 @@ public class MainFragment extends Fragment {
         ActionBar ab = activity.getSupportActionBar();
         ab.setHomeAsUpIndicator(R.drawable.ic_home);
         ab.setDisplayHomeAsUpEnabled(true);
+        toolbar.setTitle("Timer");
 
         mainAdaptor = new MainAdaptor(getChildFragmentManager());
         mainAdaptor.addFragmentWithKey(getResources().getString(R.string.track), TrackFragment.newInstance());
@@ -72,7 +69,6 @@ public class MainFragment extends Fragment {
         mainAdaptor.addFragmentWithKey(getResources().getString(R.string.artist), ArtistFragment.newInstance());
         viewpager.setAdapter(mainAdaptor);
         tabs.setupWithViewPager(viewpager);
-        collapsingToolbar.setTitle(TITLE);
     }
 
     @Override
